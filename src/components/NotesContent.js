@@ -1,11 +1,16 @@
 import { Card, Col, Row, Container, Button } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { fetchQuestions } from '../redux/actions/questionsActions';
+import { useHistory } from 'react-router-dom';
+import generateQuestions from '../generateQuestions';
 
 const NotesContent = props => {
     const { match } = props;
     const topicID = match.params.topicID;
-
     const [notesData, setNotesData] = useState({});
+    const dispatch = useDispatch();
+    const history = useHistory();
 
     // Fetch topic and course name from topic ID
     useEffect(() => {
@@ -16,6 +21,17 @@ const NotesContent = props => {
         }
         fetchNotesData();
     }, []);
+
+    const handleTestYourselfClick = e => {
+        e.preventDefault();
+        dispatch(fetchQuestions(topicID));
+        history.push(`/questions/${topicID}`);
+    }
+
+    const handleQuestGenClick = e => {
+        e.preventDefault();
+        generateQuestions(topicID);
+    }
 
     return (
         <Container>
@@ -30,8 +46,8 @@ const NotesContent = props => {
             </Card>
             <Row className="d-flex mt-3 justify-content-between">
                 <Col>
-                    <Button className="mr-2" variant="primary">Generate Questions</Button>
-                    <Button className="mx-4" variant="primary">Test Yourself</Button>
+                    <Button onClick={handleQuestGenClick} className="mr-2" variant="primary">Generate Questions</Button>
+                    <Button onClick={handleTestYourselfClick} className="mx-4" variant="primary">Test Yourself</Button>
                 </Col>
             </Row>
         </Container>

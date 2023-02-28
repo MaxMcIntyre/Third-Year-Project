@@ -1,7 +1,7 @@
 import { Card, Col, Row, Button } from 'react-bootstrap';
 
 const CourseCard = props => {
-    const notesLink = `/notes/${props.id}`
+    const notesLink = `/notes/${props.id}`;
     return (
         <Card className="mx-auto" style={{ maxWidth: "80%" }}>
             <Card.Body>

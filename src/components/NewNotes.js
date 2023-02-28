@@ -2,7 +2,6 @@ import { Card, Col, Row, Button, Form, FormControl } from 'react-bootstrap';
 import { useRef, useState } from 'react';
 import { addTopic } from '../redux/actions/topicsActions';
 import { useDispatch } from 'react-redux';
-import { StepContext } from '@mui/material';
 
 const NewNotes = props => {
     const nameInputRef = useRef(null);
@@ -14,7 +13,6 @@ const NewNotes = props => {
         e.preventDefault();
         const name = nameInputRef.current.value;
         const notes = text;
-        console.log(notes);
         dispatch(addTopic(name, notes, props.courseID));
     }
 
@@ -32,7 +30,7 @@ const NewNotes = props => {
                 </Row>
                 <Row>
                     <Col className="mt-3">
-                        <Card.Text>Topic name:</Card.Text>
+                        <Card.Text>Topic Name:</Card.Text>
                         <Form.Control ref={nameInputRef} type="text" placeholder="Enter topic name" />
                     </Col>
                 </Row>

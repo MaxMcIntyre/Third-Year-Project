@@ -37,12 +37,12 @@ class CourseView(viewsets.ModelViewSet):
         except Course.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
-    def destroy(self, request, pk):
+    def destroy(self, request, pk=None):
         course = Course.objects.get(pk=pk)
         course.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    def update(self, request, pk):
+    def update(self, request, pk=None):
         course = self.get_object(pk)
         serializer = self.serializer_class(course, data=request.data)
         if serializer.is_valid():
@@ -58,22 +58,22 @@ class TopicView(viewsets.ModelViewSet):
     def create(self, request):
         name = request.data.get('name')
         notes = request.data.get('notes')
-        course = Course.objects.get(pk=request.data.get('courseID'))
 
-        if course:
+        try:
+            course = Course.objects.get(pk=request.data.get('courseID'))
             topic = Topic(course=course, topic_name=name, notes=notes)
             topic.save()
             serialized_topic = self.serializer_class(topic)
             return JsonResponse({'success': True, 'topic': serialized_topic.data})
-        else:
+        except Course.DoesNotExist:
             return JsonResponse({'error': 'Invalid Course ID'}, status=400)
     
-    def destroy(self, request, pk):
+    def destroy(self, request, pk=None):
         topic = Topic.objects.get(pk=pk)
         topic.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    def update(self, request, pk):
+    def update(self, request, pk=None):
         topic = self.get_object(pk)
         serializer = self.serializer_class(topic, data=request.data)
         if serializer.is_valid():
@@ -116,10 +116,11 @@ class QuestionSetView(viewsets.ModelViewSet):
     queryset = QuestionSet.objects.all()
     serializer_class = QuestionSetSerializer 
 
-    def create(self, request, pk):
+    def create(self, request, pk=None):
         topic = Topic.objects.get(pk=request.data.get('topicID'))
 
-        if topic:
+        try:
+            topic = Topic.objects.get(pk=request.data.get('topicID'))
             question_set = QuestionSet(topic=topic)
             question_set.save()
             # DUMMY QUESTIONS - REPLACE WITH NLP MODEL STUFF
@@ -130,35 +131,41 @@ class QuestionSetView(viewsets.ModelViewSet):
                     question_set=question_set, question_type='SA', question=question_text, answer=answer_text)
                 question.save()
             return JsonResponse({'success': True})
-        else:
+        except Topic.DoesNotExist:
             return JsonResponse({'error': 'Invalid Topic ID'}, status=400)
-    
+
+class TopicQuestionsView(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer 
+
     # Get all questions for a specific question set ID
     # REPLACE WITH MORE COMPLEX METHOD OF SELECTING QUESTIONS
-    def list(self, request, pk):
-        question_set = QuestionSet.objects.get(pk=pk)
-        if not question_set:
-            return JsonResponse({'error': 'Invalid Question Set ID'}, status=400)
+    def list(self, request, *args, **kwargs):
+        try:
+            question_set = QuestionSet.objects.get(topic=self.kwargs['topic_pk'])
+        except QuestionSet.DoesNotExist:
+            return JsonResponse({'question_set_id': -1, 'questions': []})
 
         questions_in_set = Question.objects.filter(question_set=question_set)
         serializer = QuestionSerializer(questions_in_set, many=True)
-        return JsonResponse({'questions': serializer.data})
-        
+        return JsonResponse({'question_set_id': question_set.id, 'questions': serializer.data})
+
 class QuestionSetAttemptView(viewsets.ModelViewSet):
     queryset = QuestionSetAttempt.objects.all()
     serializer_class = QuestionSetAttemptSerializer 
 
     def create(self, request):
+        print(request.data)
         total_questions = request.data.get('totalQuestions')
         correct_answers = request.data.get('correctAnswers')
         attempt_date = request.data.get('attemptDate')
-        question_set = Course.objects.get(pk=request.data.get('questionSetID'))
-
-        if question_set:
+        
+        try: 
+            question_set = QuestionSet.objects.get(pk=request.data.get('questionSetID'))
             question_set_attempt = QuestionSetAttempt(
                 question_set=question_set, total_questions=total_questions, correct_answers=correct_answers, attempt_date=attempt_date)
             question_set_attempt.save()
             serialized_question_set_attempt = self.serializer_class(question_set_attempt)
             return JsonResponse({'success': True, 'questionSetAttempt': serialized_question_set_attempt.data})
-        else:
+        except QuestionSet.DoesNotExist:
             return JsonResponse({'error': 'Invalid Question Set ID'}, status=400)

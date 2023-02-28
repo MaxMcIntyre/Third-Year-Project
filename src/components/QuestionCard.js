@@ -11,8 +11,8 @@ const QuestionCard = props => {
         setUserAnswer(inputRef.current.value);
     }
 
-    const setNextQuestion = () => {
-        props.loadNextQuestion();
+    const setNextQuestion = prevCorrect => {
+        props.loadNextQuestion(prevCorrect);
         setQuestionMode(true);
     }
 
@@ -60,10 +60,10 @@ const QuestionCard = props => {
                         </Row>
                         <Row>
                             <Col>
-                                <Button onClick={setNextQuestion} variant="success" className="mt-3">Mark answer correct</Button>
+                                <Button onClick={() => setNextQuestion(true)} variant="success" className="mt-3">Mark answer correct</Button>
                             </Col>
                             <Col>
-                                <Button onClick={setNextQuestion} variant="danger" className="mt-3">Mark answer incorrect</Button>
+                                <Button onClick={() => setNextQuestion(false)} variant="danger" className="mt-3">Mark answer incorrect</Button>
                             </Col>
                         </Row>
                     </Card.Body>
