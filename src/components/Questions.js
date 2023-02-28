@@ -5,10 +5,7 @@ import { fetchQuestions } from '../redux/actions/questionsActions';
 import NoQuestionsCard from './NoQuestionsCard';
 import QuestionsCompletedCard from './QuestionsCompletedCard';
 
-const selectQuestions = state => {
-    console.log(state);
-    return state.questions.questions;
-}
+const selectQuestions = state => state.questions.questions;
 const selectQuestionSetID = state => state.questions.question_set_id;
 
 const Questions = props => {
