@@ -23,8 +23,9 @@ router.register(r'courses', views.CourseView, 'courses')
 router.register(r'topics', views.TopicView, 'topics')
 router.register(r'questions', views.QuestionView, 'questions')
 router.register(r'questionsetattempts', views.QuestionSetView, 'questionsetattempts')
+router.register(r'courses/(?P<course_pk>\d+)/topics', views.CourseTopicsView, basename='coursetopics')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls))
+    path('api/', include(router.urls)),
 ]

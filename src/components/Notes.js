@@ -1,14 +1,42 @@
 import NoteCard from './NoteCard';
 import NewNotes from './NewNotes';
+import { fetchTopics } from '../redux/actions/topicsActions';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+const selectTopics = state => state.topics.topics;
 
 const Notes = props => {
+    const dispatch = useDispatch();
+
+    const [courseData, setCourseData] = useState({});
+    const { match } = props;
+    const courseID = match.params.courseID;
+
+    // Fetch course data to get course name from ID
+    useEffect(() => {
+        const fetchCourseData = async () => {
+            const response = await fetch(`http://localhost:8000/api/courses/${courseID}`);
+            const responseData = await response.json();
+            setCourseData(responseData.course);
+        }
+        fetchCourseData();
+    }, [])
+
+    useEffect(() => {
+        dispatch(fetchTopics(courseID));
+    }, [dispatch, courseID]);
+
+    const topics = useSelector(selectTopics);
+
     return (
         <div>
-            <h2 style={{ textAlign: "center" }}>Notes for {props.courseName}</h2>
-            <NoteCard name="Lexing" />
-            <NoteCard name="Syntax Analysis" />
+            <h2 style={{ textAlign: "center" }}>Notes for {courseData.name}</h2>
+            {topics.map(topic => (
+                <NoteCard key={topic.id} name={topic.name} />
+            ))}
             <br />
-            <NewNotes />
+            <NewNotes courseID={courseID} />
         </div>
     );
 }

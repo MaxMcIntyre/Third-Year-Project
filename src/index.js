@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+//import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 import './index.css';
 import App from './App';
 import ErrorPage from './components/ErrorPage';
@@ -17,15 +20,15 @@ const questions = [
     { 'question': 'question 3', 'answer': 'answer 3' },
 ];
 
-const router = createBrowserRouter([
+/*const router = createBrowserRouter([
     {
         path: '/',
         element: <App />,
         errorElement: <ErrorPage />
     },
     {
-        path: '/notes',
-        element: <Notes courseName="CS325 - Compiler Design" />
+        path: '/notes/:courseID',
+        element: <Notes key="CS325 - Compiler Design" />
     },
     {
         path: '/content',
@@ -35,14 +38,19 @@ const router = createBrowserRouter([
         path: '/questions',
         element: <Questions questions={questions} />
     }
-]);
+]);*/
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <React.StrictMode>
+    <Provider store={store}>
         <Header />
-        <RouterProvider router={router} />
-    </React.StrictMode>
+        <Router>
+            <Switch>
+                <Route exact path='/' component={App} />
+                <Route exaxt path='/notes/:courseID' component={Notes} />
+            </Switch>
+        </Router>
+    </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

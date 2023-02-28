@@ -21,11 +21,20 @@ class CourseView(viewsets.ModelViewSet):
         name = request.data.get('name')
         course = Course(name=name)
         course.save()
-        return JsonResponse({'success': True})
+        serialized_course = self.serializer_class(course)
+        return JsonResponse({'success': True, 'course': serialized_course.data})
 
     def list(self, request):
         serializer = self.serializer_class(Course.objects.all(), many=True)
         return JsonResponse({'courses': serializer.data})
+
+    def retrieve(self, request, pk=None):
+        try:
+            course = Course.objects.get(pk=pk)
+            serializer = self.serializer_class(course)
+            return JsonResponse({'course': serializer.data})
+        except Course.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     
     def destroy(self, request, pk):
         course = Course.objects.get(pk=pk)
@@ -53,15 +62,10 @@ class TopicView(viewsets.ModelViewSet):
         if course:
             topic = Topic(course=course, name=name, notes=notes)
             topic.save()
-            return JsonResponse({'success': True})
+            serialized_topic = self.serializer_class(topic)
+            return JsonResponse({'success': True, 'topic': serialized_topic.data})
         else:
             return JsonResponse({'error': 'Invalid Course ID'}, status=400)
-    
-    def list(self, request):
-        # Get topics for a particular course ID
-        topics_for_course = Topic.objects.all().filter(course=request.data.get('courseID'))
-        serializer = self.serializer_class(topics_for_course, many=True)
-        return JsonResponse({'topics': serializer.data})
     
     def destroy(self, request, pk):
         topic = Topic.objects.get(pk=pk)
@@ -76,6 +80,16 @@ class TopicView(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=400)
+
+class CourseTopicsView(viewsets.ModelViewSet):
+    serializer_class = TopicSerializer
+    
+    def list(self, request, *args, **kwargs):
+        # Get topics for a particular course ID
+        course_id = self.kwargs['course_pk']
+        topics_for_course = Topic.objects.filter(course=course_id)
+        serializer = self.serializer_class(topics_for_course, many=True)
+        return JsonResponse({'topics': serializer.data})
 
 class QuestionView(viewsets.ModelViewSet):
     queryset = Question.objects.all()
@@ -132,6 +146,7 @@ class QuestionSetAttemptView(viewsets.ModelViewSet):
             question_set_attempt = QuestionSetAttempt(
                 question_set=question_set, total_questions=total_questions, correct_answers=correct_answers, attempt_date=attempt_date)
             question_set_attempt.save()
-            return JsonResponse({'success': True})
+            serialized_question_set_attempt = self.serializer_class(question_set_attempt)
+            return JsonResponse({'success': True, 'questionSetAttempt': serialized_question_set_attempt.data})
         else:
             return JsonResponse({'error': 'Invalid Question Set ID'}, status=400)

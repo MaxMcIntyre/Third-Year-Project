@@ -10,6 +10,8 @@ const NoteCard = props => {
                             <a href="something" style={{ fontSize: "125%" }}>{props.name}</a>
                         </Col>
                         <Col className="d-flex justify-content-end">
+                            <Button className="me-3" variant="primary">Generate Questions</Button>
+                            <Button className="me-3" variant="primary">Test Yourself</Button>
                             <Button style={{ minWidth: "30%" }} variant="danger" type="submit">Delete Notes</Button>
                         </Col>
                     </Row>

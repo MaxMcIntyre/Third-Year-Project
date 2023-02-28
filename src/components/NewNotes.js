@@ -1,6 +1,20 @@
 import { Card, Col, Row, Button, Form, FormControl } from 'react-bootstrap';
+import { useRef } from 'react';
+import { addTopic } from '../redux/actions/topicsActions';
+import { useDispatch } from 'react-redux';
 
 const NewNotes = props => {
+    const nameInputRef = useRef(null);
+    const notesInputRef = useRef(null);
+    const dispatch = useDispatch();
+
+    const handleSubmit = e => {
+        e.preventDefault();
+        const name = nameInputRef.current.value;
+        const notes = notesInputRef.current.value;
+        dispatch(addTopic(name, notes, props.courseID));
+    }
+
     return (
         <Card className="mx-auto" style={{ maxWidth: "80%" }}>
             <Card.Body>
@@ -12,18 +26,18 @@ const NewNotes = props => {
                 <Row>
                     <Col className="mt-3">
                         <Card.Text>Topic name:</Card.Text>
-                        <Form.Control type="text" placeholder="Enter text" />
+                        <Form.Control ref={nameInputRef} type="text" placeholder="Enter topic name" />
                     </Col>
                 </Row>
                 <Row>
                     <Col className="mt-3">
                         <Card.Text>Notes Text:</Card.Text>
-                        <FormControl as="textarea" placeholder="Enter notes" rows={10} />
+                        <FormControl ref={notesInputRef} as="textarea" placeholder="Enter notes" rows={10} />
                     </Col>
                 </Row>
                 <Row>
                     <Col className="d-flex mt-3 justify-content-start">
-                        <Button style={{ minWidth: "15%" }} variant="primary" type="submit">Submit</Button>
+                        <Button onClick={handleSubmit} style={{ minWidth: "15%" }} variant="primary" type="submit">Submit</Button>
                     </Col>
                 </Row>
             </Card.Body>

@@ -1,21 +1,16 @@
 import { Card, Col, Row, Button, Form } from 'react-bootstrap';
 import { useRef } from 'react';
+import { addCourse } from '../redux/actions/coursesActions';
+import { useDispatch } from 'react-redux';
 
 const NewCourse = props => {
     const nameInputRef = useRef(null);
+    const dispatch = useDispatch();
 
-    const addCourse = async () => {
-        const response = await fetch('http://localhost:8000/api/courses/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'name': nameInputRef.current.value
-            })
-        });
-
-        const responseData = await response.json();
+    const handleSubmit = e => {
+        e.preventDefault();
+        const name = nameInputRef.current.value;
+        dispatch(addCourse(name));
     }
 
     return (
@@ -24,10 +19,10 @@ const NewCourse = props => {
                 <Row>
                     <Col>
                         <Card.Text>Add new course:</Card.Text>
-                        <Form.Control ref={nameInputRef} type="text" placeholder="Enter text" />
+                        <Form.Control ref={nameInputRef} type="text" placeholder="Enter course name" />
                     </Col>
                     <Col className="d-flex justify-content-end">
-                        <Button onClick={addCourse} style={{ minWidth: "30%" }} variant="primary" type="submit">Submit</Button>
+                        <Button onClick={handleSubmit} style={{ minWidth: "30%" }} variant="primary" type="submit">Submit</Button>
                     </Col>
                 </Row>
             </Card.Body>
