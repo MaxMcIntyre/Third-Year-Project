@@ -1,16 +1,31 @@
 import { Card, Col, Row, Container, Button } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
 
 const NotesContent = props => {
+    const { match } = props;
+    const topicID = match.params.topicID;
+
+    const [notesData, setNotesData] = useState({});
+
+    // Fetch topic and course name from topic ID
+    useEffect(() => {
+        const fetchNotesData = async () => {
+            const response = await fetch(`http://localhost:8000/api/notescontent/${topicID}`);
+            const responseData = await response.json();
+            setNotesData(responseData.topic);
+        }
+        fetchNotesData();
+    }, []);
+
     return (
         <Container>
-            <h2 style={{ textAlign: "center" }}>{props.courseName} - {props.topicName}</h2>
+            <div style={{ textAlign: "center" }}>
+                <h2>{notesData.course_name}</h2>
+                <h4>{notesData.topic_name}</h4>
+            </div>
             <Card className="w-80 mx-auto mt-3">
-                <Card.Body>
-                    Lorem ipsum dolor sit amet. Sed facere repellendus et fuga quia ut veniam sunt quo suscipit ducimus est quibusdam facilis qui ipsa rerum At ipsum aliquid. Ea illo illum ad illum animi eos possimus adipisci!
-
-                    Aut autem sunt quo soluta rerum sed quis culpa vel omnis quaerat est Quis vero vel mollitia expedita hic praesentium reprehenderit. Eos adipisci distinctio ut accusantium magni eum dolorum fugiat aut cumque quaerat rem labore labore. Vel amet laborum At iure nemo est labore ratione quo expedita libero?
-
-                    Ut saepe deserunt quo quae deserunt vel temporibus aperiam vel dolore omnis. Sed quasi esse non corrupti saepe quo quod iusto id rerum earum nam quia voluptas. Aut quod aspernatur ut veritatis omnis eum blanditiis facilis ea obcaecati facere. Ut neque nihil id harum cupiditate et voluptatibus sunt aut asperiores tempora ut quisquam quam qui doloremque nobis.
+                <Card.Body style={{ whiteSpace: "pre-wrap"}}>
+                    {notesData.notes}
                 </Card.Body>
             </Card>
             <Row className="d-flex mt-3 justify-content-between">

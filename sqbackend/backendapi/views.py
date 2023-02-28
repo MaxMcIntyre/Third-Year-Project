@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import Course
 from .models import Topic
 from .models import QuestionSet
@@ -12,6 +12,7 @@ from .serializers import TopicSerializer
 from .serializers import QuestionSetSerializer
 from .serializers import QuestionSerializer
 from .serializers import QuestionSetAttemptSerializer
+from .serializers import NotesContentSerializer 
 
 class CourseView(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -19,7 +20,7 @@ class CourseView(viewsets.ModelViewSet):
 
     def create(self, request):
         name = request.data.get('name')
-        course = Course(name=name)
+        course = Course(course_name=name)
         course.save()
         serialized_course = self.serializer_class(course)
         return JsonResponse({'success': True, 'course': serialized_course.data})
@@ -60,7 +61,7 @@ class TopicView(viewsets.ModelViewSet):
         course = Course.objects.get(pk=request.data.get('courseID'))
 
         if course:
-            topic = Topic(course=course, name=name, notes=notes)
+            topic = Topic(course=course, topic_name=name, notes=notes)
             topic.save()
             serialized_topic = self.serializer_class(topic)
             return JsonResponse({'success': True, 'topic': serialized_topic.data})
@@ -90,6 +91,17 @@ class CourseTopicsView(viewsets.ModelViewSet):
         topics_for_course = Topic.objects.filter(course=course_id)
         serializer = self.serializer_class(topics_for_course, many=True)
         return JsonResponse({'topics': serializer.data})
+
+class NotesContentView(viewsets.ModelViewSet):
+    serializer_class = NotesContentSerializer 
+
+    def retrieve(self, request, pk=None):
+        try:
+            topic = Topic.objects.get(pk=pk)
+            serializer = self.serializer_class(topic)
+            return JsonResponse({'topic': serializer.data})
+        except Topic.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 class QuestionView(viewsets.ModelViewSet):
     queryset = Question.objects.all()

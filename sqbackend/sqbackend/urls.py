@@ -23,6 +23,7 @@ router.register(r'courses', views.CourseView, 'courses')
 router.register(r'topics', views.TopicView, 'topics')
 router.register(r'questions', views.QuestionView, 'questions')
 router.register(r'questionsetattempts', views.QuestionSetView, 'questionsetattempts')
+router.register(r'notescontent', views.NotesContentView, 'notescontent')
 router.register(r'courses/(?P<course_pk>\d+)/topics', views.CourseTopicsView, basename='coursetopics')
 
 urlpatterns = [

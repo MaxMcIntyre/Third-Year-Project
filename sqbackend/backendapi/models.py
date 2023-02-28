@@ -2,11 +2,11 @@ from django.db import models
 
 # Create your models here.
 class Course(models.Model):
-    name = models.TextField()
+    course_name = models.TextField()
 
 class Topic(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
-    name = models.TextField()
+    topic_name = models.TextField()
     notes = models.TextField()
 
 class QuestionSet(models.Model):

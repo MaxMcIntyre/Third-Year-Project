@@ -48,6 +48,7 @@ root.render(
             <Switch>
                 <Route exact path='/' component={App} />
                 <Route exaxt path='/notes/:courseID' component={Notes} />
+                <Route exaxt path='/content/:topicID' component={NotesContent} />
             </Switch>
         </Router>
     </Provider>

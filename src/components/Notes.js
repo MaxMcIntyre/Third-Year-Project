@@ -9,7 +9,7 @@ const selectTopics = state => state.topics.topics;
 const Notes = props => {
     const dispatch = useDispatch();
 
-    const [courseData, setCourseData] = useState({});
+    const [courseName, setCourseName] = useState('');
     const { match } = props;
     const courseID = match.params.courseID;
 
@@ -18,7 +18,7 @@ const Notes = props => {
         const fetchCourseData = async () => {
             const response = await fetch(`http://localhost:8000/api/courses/${courseID}`);
             const responseData = await response.json();
-            setCourseData(responseData.course);
+            setCourseName(responseData.course.course_name);
         }
         fetchCourseData();
     }, [])
@@ -31,9 +31,9 @@ const Notes = props => {
 
     return (
         <div>
-            <h2 style={{ textAlign: "center" }}>Notes for {courseData.name}</h2>
+            <h2 style={{ textAlign: "center" }}>Notes for {courseName}</h2>
             {topics.map(topic => (
-                <NoteCard key={topic.id} name={topic.name} />
+                <NoteCard key={topic.id} id={topic.id} name={topic.topic_name} />
             ))}
             <br />
             <NewNotes courseID={courseID} />

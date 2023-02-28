@@ -1,13 +1,14 @@
 import { Card, Col, Row, Button } from 'react-bootstrap';
 
 const NoteCard = props => {
+    const contentLink = `/content/${props.id}`
     return (
         <div>
             <Card className="mx-auto" style={{ maxWidth: "80%" }}>
                 <Card.Body>
                     <Row>
                         <Col>
-                            <a href="something" style={{ fontSize: "125%" }}>{props.name}</a>
+                            <a href={contentLink} style={{ fontSize: "125%" }}>{props.name}</a>
                         </Col>
                         <Col className="d-flex justify-content-end">
                             <Button className="me-3" variant="primary">Generate Questions</Button>
