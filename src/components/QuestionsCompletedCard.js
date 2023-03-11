@@ -25,7 +25,10 @@ const QuestionsCompletedCard = props => {
 
     const handleClick = e => {
         e.preventDefault();
-        recordAttempt(props.questionSetID);
+        // Only record attempt if all of the questions were not deleted
+        if (props.total > 0) {
+            recordAttempt(props.questionSetID);
+        }
         history.goBack();
     }
 
@@ -47,7 +50,7 @@ const QuestionsCompletedCard = props => {
                     </Row>
                     <Row>
                         <Col>
-                            <Button onClick={handleClick} variant="primary">Finish Attempt</Button>
+                            <Button className="mt-2" onClick={handleClick} variant="primary">Finish Attempt</Button>
                         </Col>
                     </Row>
                 </Card.Body>

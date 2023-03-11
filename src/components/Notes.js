@@ -21,7 +21,7 @@ const Notes = props => {
             setCourseName(responseData.course.course_name);
         }
         fetchCourseData();
-    }, [])
+    }, [courseID])
 
     useEffect(() => {
         dispatch(fetchTopics(courseID));
@@ -31,9 +31,9 @@ const Notes = props => {
 
     return (
         <div>
-            <h2 style={{ textAlign: "center" }}>Notes for {courseName}</h2>
+            <h2 style={{ textAlign: "center" }}>Topics for {courseName}</h2>
             {topics.map(topic => (
-                <NoteCard key={topic.id} id={topic.id} name={topic.topic_name} />
+                <NoteCard key={topic.id} id={topic.id} name={topic.topic_name} notes={topic.notes} state={topics} />
             ))}
             <br />
             <NewNotes courseID={courseID} />

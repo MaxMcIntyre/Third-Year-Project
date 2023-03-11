@@ -96,7 +96,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'smartquestions',
         'USER': 'postgres',
-        'PASSWORD': 'H3nry!P3t3r!!!',
+        'PASSWORD': 'th30h3l3y0802',
         'HOST': 'localhost',
         'PORT': '5432',
     }

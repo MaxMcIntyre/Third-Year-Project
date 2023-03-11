@@ -1,7 +1,7 @@
 import { Card, Col, Row, Container, Button } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchQuestions } from '../redux/actions/questionsActions';
+import { fetchQuestions, startQuestionGeneration, finishQuestionGeneration } from '../redux/actions/questionsActions';
 import { useHistory } from 'react-router-dom';
 import generateQuestions from '../generateQuestions';
 
@@ -30,7 +30,8 @@ const NotesContent = props => {
 
     const handleQuestGenClick = e => {
         e.preventDefault();
-        generateQuestions(topicID);
+        dispatch(startQuestionGeneration(topicID));
+        generateQuestions(topicID).then(() => dispatch(finishQuestionGeneration(topicID)));
     }
 
     return (

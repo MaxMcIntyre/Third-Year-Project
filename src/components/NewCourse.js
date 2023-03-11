@@ -18,11 +18,11 @@ const NewCourse = props => {
             <Card.Body>
                 <Row>
                     <Col>
-                        <Card.Text>Add new course:</Card.Text>
+                        <Form.Label>Add new course:</Form.Label>
                         <Form.Control ref={nameInputRef} type="text" placeholder="Enter course name" />
                     </Col>
                     <Col className="d-flex justify-content-end">
-                        <Button onClick={handleSubmit} style={{ minWidth: "30%" }} variant="primary" type="submit">Submit</Button>
+                        <Button onClick={handleSubmit} style={{ minWidth: "30%" }} variant="secondary" type="submit">Submit</Button>
                     </Col>
                 </Row>
             </Card.Body>

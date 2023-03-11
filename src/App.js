@@ -16,12 +16,11 @@ function App() {
 
     const courses = useSelector(selectCourses);
     
-    console.log(courses);
     return (
         <div>
             <h2 style={{ textAlign: "center" }}>My Courses</h2>
             {courses.map(course => (
-                <CourseCard key={course.id} id={course.id} name={course.course_name} />
+                <CourseCard key={course.id} id={course.id} name={course.course_name} state={courses} />
             ))}
             <br />
             <NewCourse />

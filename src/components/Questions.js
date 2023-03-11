@@ -1,15 +1,15 @@
 import QuestionCard from './QuestionCard';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchQuestions } from '../redux/actions/questionsActions';
+import { fetchQuestions, deleteQuestion } from '../redux/actions/questionsActions';
 import NoQuestionsCard from './NoQuestionsCard';
 import QuestionsCompletedCard from './QuestionsCompletedCard';
 
 const selectQuestions = state => state.questions.questions;
+const selectQuestionsGenerating = state => state.questions.questions_generating;
 const selectQuestionSetID = state => state.questions.question_set_id;
 
 const Questions = props => {
-
     const [index, setIndex] = useState(-1);
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
@@ -22,10 +22,11 @@ const Questions = props => {
     // Fetch questions for given topic ID
     useEffect(() => {
         dispatch(fetchQuestions(topicID));
-    }, []);
+    }, [dispatch, topicID]);
 
     const questions = useSelector(selectQuestions);
     const questionSetID = useSelector(selectQuestionSetID);
+    const questionsGenerating = useSelector(selectQuestionsGenerating);
 
     useEffect(() => {
         if (questions.length > 0) {
@@ -49,14 +50,22 @@ const Questions = props => {
             return nextIndex;
         });
     }
+  
+    const handleDelete = e => {
+        e.preventDefault();
+        dispatch(deleteQuestion(questions[index].id));
+        loadNextQuestion(false);
+    }
     
     let card;
-    if (questions.length == 0) {
-        card = <NoQuestionsCard />;;
+    if (questionsGenerating[topicID]) {
+        card = <NoQuestionsCard text="Questions are currently being generated for this set of notes! Check back in a short while to see them." />
+    } else if (questions.length === 0) {
+        card = <NoQuestionsCard text="Uh oh! Looks like there aren't currently any questions for this set of notes." />;
     } else if (index >= questions.length) {
         card = <QuestionsCompletedCard questionSetID={questionSetID} noCorrect={noCorrect} total={questions.length} />;
     } else {
-        card = <QuestionCard loadNextQuestion={loadNextQuestion} question={question} answer={answer} />;
+        card = <QuestionCard loadNextQuestion={loadNextQuestion} handleDelete={handleDelete} questionNumber={index + 1} total={questions.length} question={question} answer={answer} />;
     }
     
     return (

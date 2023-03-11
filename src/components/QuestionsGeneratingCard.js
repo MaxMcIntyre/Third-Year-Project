@@ -10,7 +10,7 @@ const NoQuestionsCard = props => {
                 <Card.Body className="text-center">
                     <Row>
                         <Col>
-                            {props.text}
+                            Questions are currently being generated for this set of notes! Check back in a short while to see them.
                         </Col>
                     </Row>
                     <Row>

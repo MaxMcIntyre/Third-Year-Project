@@ -13,6 +13,7 @@ from .serializers import QuestionSetSerializer
 from .serializers import QuestionSerializer
 from .serializers import QuestionSetAttemptSerializer
 from .serializers import NotesContentSerializer 
+from .prediction import Predictor
 
 class CourseView(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -43,12 +44,13 @@ class CourseView(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     def update(self, request, pk=None):
-        course = self.get_object(pk)
+        course = Course.objects.get(pk=pk)
         serializer = self.serializer_class(course, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         else:
+            print('serializer errors:', serializer.errors)
             return Response(serializer.errors, status=400)
 
 class TopicView(viewsets.ModelViewSet):
@@ -74,8 +76,9 @@ class TopicView(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     def update(self, request, pk=None):
-        topic = self.get_object(pk)
-        serializer = self.serializer_class(topic, data=request.data)
+        topic = Topic.objects.get(pk=pk)
+        course_id = topic.course.id
+        serializer = self.serializer_class(topic, data={**request.data, 'course': course_id })
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -115,20 +118,26 @@ class QuestionView(viewsets.ModelViewSet):
 class QuestionSetView(viewsets.ModelViewSet):
     queryset = QuestionSet.objects.all()
     serializer_class = QuestionSetSerializer 
+    predictor = Predictor()
 
     def create(self, request, pk=None):
         topic = Topic.objects.get(pk=request.data.get('topicID'))
+        # Remove any existing question sets for the topic
+        existing_question_set = QuestionSet.objects.filter(topic=topic)
+        existing_question_set.delete()
 
         try:
             topic = Topic.objects.get(pk=request.data.get('topicID'))
             question_set = QuestionSet(topic=topic)
             question_set.save()
-            # DUMMY QUESTIONS - REPLACE WITH NLP MODEL STUFF
-            for i in range(5):
-                question_text = 'question ' + str(i)
-                answer_text = 'answer ' + str(i)
+            notes = topic.notes 
+            question_answers = self.predictor.predict(notes)
+            # Separate each question-answer pair out and add it to database
+            for qa in question_answers:
+                question = qa['question'] + '?'
+                answer = qa['answer']
                 question = Question(
-                    question_set=question_set, question_type='SA', question=question_text, answer=answer_text)
+                    question_set=question_set, question_type='SA', question=question, answer=answer)
                 question.save()
             return JsonResponse({'success': True})
         except Topic.DoesNotExist:
@@ -142,7 +151,8 @@ class TopicQuestionsView(viewsets.ModelViewSet):
     # REPLACE WITH MORE COMPLEX METHOD OF SELECTING QUESTIONS
     def list(self, request, *args, **kwargs):
         try:
-            question_set = QuestionSet.objects.get(topic=self.kwargs['topic_pk'])
+            # Saves from request failing in case there are somehow multiple sets for the same topic
+            question_set = QuestionSet.objects.filter(topic=self.kwargs['topic_pk']).first()
         except QuestionSet.DoesNotExist:
             return JsonResponse({'question_set_id': -1, 'questions': []})
 
@@ -155,7 +165,6 @@ class QuestionSetAttemptView(viewsets.ModelViewSet):
     serializer_class = QuestionSetAttemptSerializer 
 
     def create(self, request):
-        print(request.data)
         total_questions = request.data.get('totalQuestions')
         correct_answers = request.data.get('correctAnswers')
         attempt_date = request.data.get('attemptDate')

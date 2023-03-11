@@ -1,23 +1,22 @@
-import { Card, Col, Row, Button, Form, FormControl } from 'react-bootstrap';
+import { Card, Col, Row, Button, Form } from 'react-bootstrap';
 import { useRef, useState } from 'react';
 import { addTopic } from '../redux/actions/topicsActions';
 import { useDispatch } from 'react-redux';
 
 const NewNotes = props => {
     const nameInputRef = useRef(null);
-    const notesInputRef = useRef(null);
-    const [text, setText] = useState('');
+    const [notesText, setNotesText] = useState('');
     const dispatch = useDispatch();
 
     const handleSubmit = e => {
         e.preventDefault();
         const name = nameInputRef.current.value;
-        const notes = text;
+        const notes = notesText;
         dispatch(addTopic(name, notes, props.courseID));
     }
 
     const handleChange = e => {
-        setText(e.target.value);
+        setNotesText(e.target.value);
     }
 
     return (
@@ -25,24 +24,24 @@ const NewNotes = props => {
             <Card.Body>
                 <Row>
                     <Col>
-                        <Card.Text>Add new notes:</Card.Text>
+                        <Card.Text>Add new topic:</Card.Text>
                     </Col>
                 </Row>
                 <Row>
                     <Col className="mt-3">
-                        <Card.Text>Topic Name:</Card.Text>
+                        <Form.Label>Topic Name:</Form.Label>
                         <Form.Control ref={nameInputRef} type="text" placeholder="Enter topic name" />
                     </Col>
                 </Row>
                 <Row>
                     <Col className="mt-3">
-                        <Card.Text>Notes Text:</Card.Text>
-                        <Form.Control onChange={handleChange} ref={notesInputRef} as="textarea" placeholder="Enter notes" rows={10} />
+                        <Form.Label>Notes Text:</Form.Label>
+                        <Form.Control onChange={handleChange} as="textarea" placeholder="Enter notes" rows={10} />
                     </Col>
                 </Row>
                 <Row>
                     <Col className="d-flex mt-3 justify-content-start">
-                        <Button onClick={handleSubmit} style={{ minWidth: "15%" }} variant="primary" type="submit">Submit</Button>
+                        <Button onClick={handleSubmit} style={{ minWidth: "15%" }} variant="secondary" type="submit">Submit</Button>
                     </Col>
                 </Row>
             </Card.Body>

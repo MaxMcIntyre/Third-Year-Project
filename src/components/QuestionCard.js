@@ -23,6 +23,11 @@ const QuestionCard = props => {
                     <Card.Body>
                         <Row className="text-center">
                             <Col>
+                                Question <b>{props.questionNumber}</b> of <b>{props.total}</b>
+                            </Col>
+                        </Row>
+                        <Row className="text-center">
+                            <Col>
                                 Question: <b>{props.question}</b>
                             </Col>
                         </Row>
@@ -31,7 +36,7 @@ const QuestionCard = props => {
                                 <Form.Label>Your answer: </Form.Label>
                                 <Form.Control ref={inputRef} type="text" placeholder="Enter answer" />
                                 <Button onClick={setQuestionModeOff} className="mt-3 me-2" variant="primary" type="submit">See Answer</Button>
-                                <Button className="mt-3" variant="danger" type="submit">Delete this Question</Button>
+                                <Button onClick={props.handleDelete} className="mt-3" variant="danger" type="submit">Delete this Question</Button>
                             </Col>
                         </Row>
                     </Card.Body>
@@ -43,6 +48,11 @@ const QuestionCard = props => {
             <div>
                 <Card className="mx-auto" style={{ maxWidth: "40%", minHeight: "50%" }}>
                     <Card.Body className="text-center">
+                        <Row>
+                            <Col>
+                                Question <b>{props.questionNumber}</b> of <b>{props.total}</b>
+                            </Col>
+                        </Row>
                         <Row>
                             <Col>
                                 Question: <b>{props.question}</b>
