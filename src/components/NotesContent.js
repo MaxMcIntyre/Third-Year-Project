@@ -1,16 +1,28 @@
 import { Card, Col, Row, Container, Button } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchQuestions, startQuestionGeneration, finishQuestionGeneration } from '../redux/actions/questionsActions';
 import { useHistory } from 'react-router-dom';
-import generateQuestions from '../generateQuestions';
+import handleQuestGen from '../handleQuestGen';
+import QuestionsAlreadyGeneratingModal from './QuestionsAlreadyGeneratingModal';
+import QuestionsOverwriteModal from './QuestionsOverwriteModal';
+
+const selectQuestionsGenerating = state => state.questions.questions_generating;
 
 const NotesContent = props => {
     const { match } = props;
     const topicID = match.params.topicID;
     const [notesData, setNotesData] = useState({});
+    const [showQuestAlreadyGenModal, setShowQuestAlreadyGenModal] = useState(false);
+    const [showQuestionsOverwriteModal, setShowQuestionsOverwriteModal] = useState(false);
+    
+    const questionsGenerating = useSelector(selectQuestionsGenerating);
+
     const dispatch = useDispatch();
     const history = useHistory();
+    
+    const handleCloseQuestAlreadyGenModal = () => setShowQuestAlreadyGenModal(false);
+    const handleCloseQuestionsOverwriteModal = () => setShowQuestionsOverwriteModal(false);
 
     // Fetch topic and course name from topic ID
     useEffect(() => {
@@ -20,7 +32,7 @@ const NotesContent = props => {
             setNotesData(responseData.topic);
         }
         fetchNotesData();
-    }, []);
+    }, [topicID]);
 
     const handleTestYourselfClick = e => {
         e.preventDefault();
@@ -30,8 +42,7 @@ const NotesContent = props => {
 
     const handleQuestGenClick = e => {
         e.preventDefault();
-        dispatch(startQuestionGeneration(topicID));
-        generateQuestions(topicID).then(() => dispatch(finishQuestionGeneration(topicID)));
+        handleQuestGen(topicID, questionsGenerating, dispatch, setShowQuestAlreadyGenModal, setShowQuestionsOverwriteModal, startQuestionGeneration, finishQuestionGeneration);
     }
 
     return (
@@ -51,6 +62,15 @@ const NotesContent = props => {
                     <Button onClick={handleTestYourselfClick} className="mx-4" variant="primary">Test Yourself</Button>
                 </Col>
             </Row>
+            <QuestionsAlreadyGeneratingModal
+                showModal={showQuestAlreadyGenModal} 
+                handleCloseModal={handleCloseQuestAlreadyGenModal}
+            />
+            <QuestionsOverwriteModal
+                showModal={showQuestionsOverwriteModal} 
+                handleCloseModal={handleCloseQuestionsOverwriteModal}
+                id={topicID}
+            />
         </Container>
     );
 }

@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework.decorators import api_view
+from rest_framework import viewsets, mixins, status
+from rest_framework.views import APIView
 from .models import Course
 from .models import Topic
 from .models import QuestionSet
@@ -123,8 +125,8 @@ class QuestionSetView(viewsets.ModelViewSet):
     def create(self, request, pk=None):
         topic = Topic.objects.get(pk=request.data.get('topicID'))
         # Remove any existing question sets for the topic
-        existing_question_set = QuestionSet.objects.filter(topic=topic)
-        existing_question_set.delete()
+        existing_question_sets = QuestionSet.objects.filter(topic=topic)
+        existing_question_sets.delete()
 
         try:
             topic = Topic.objects.get(pk=request.data.get('topicID'))
@@ -178,3 +180,12 @@ class QuestionSetAttemptView(viewsets.ModelViewSet):
             return JsonResponse({'success': True, 'questionSetAttempt': serialized_question_set_attempt.data})
         except QuestionSet.DoesNotExist:
             return JsonResponse({'error': 'Invalid Question Set ID'}, status=400)
+
+# Determines if a question set exists for a given topic ID or not
+class QuestionsExistView(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = QuestionSet.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        print(self.kwargs['topic_pk'])
+        question_set = QuestionSet.objects.filter(topic=self.kwargs['topic_pk'])
+        return JsonResponse({'exists': question_set.exists()})

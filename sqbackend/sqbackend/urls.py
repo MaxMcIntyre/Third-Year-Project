@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers 
 from backendapi import views
+from backendapi.views import QuestionsExistView
 
 router = routers.DefaultRouter()
 router.register(r'courses', views.CourseView, 'courses')
@@ -27,6 +28,7 @@ router.register(r'questionsetattempts', views.QuestionSetAttemptView, 'questions
 router.register(r'notescontent', views.NotesContentView, 'notescontent')
 router.register(r'courses/(?P<course_pk>\d+)/topics', views.CourseTopicsView, 'coursetopics')
 router.register(r'topics/(?P<topic_pk>\d+)/questions', views.TopicQuestionsView, 'topicquestions')
+router.register(r'topics/(?P<topic_pk>\d+)/questionsexist', QuestionsExistView, 'questionsexist')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

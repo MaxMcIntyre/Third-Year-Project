@@ -1,24 +1,35 @@
 import { Card, Col, Row, Button } from 'react-bootstrap';
 import { fetchQuestions, startQuestionGeneration, finishQuestionGeneration } from '../redux/actions/questionsActions';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 import { deleteTopic } from '../redux/actions/topicsActions';
-import generateQuestions from '../generateQuestions';
+import handleQuestGen from '../handleQuestGen';
 import ConfirmDeletionModal from './ConfirmDeletionModal';
 import EditTopicModal from './EditTopicModal';
+import QuestionsAlreadyGeneratingModal from './QuestionsAlreadyGeneratingModal';
+import QuestionsOverwriteModal from './QuestionsOverwriteModal';
+
+const selectQuestionsGenerating = state => state.questions.questions_generating;
 
 const NoteCard = props => {
     const dispatch = useDispatch();
     const history = useHistory();
+
+    const questionsGenerating = useSelector(selectQuestionsGenerating);
     
     const [showDeletionModal, setShowDeletionModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showQuestAlreadyGenModal, setShowQuestAlreadyGenModal] = useState(false);
+    const [showQuestionsOverwriteModal, setShowQuestionsOverwriteModal] = useState(false);
 
     const handleDelete = () => setShowDeletionModal(true);
     const handleUpdate = () => setShowUpdateModal(true);
+
     const handleCloseDeletionModal = () => setShowDeletionModal(false);
     const handleCloseUpdateModal = () => setShowUpdateModal(false);
+    const handleCloseQuestAlreadyGenModal = () => setShowQuestAlreadyGenModal(false);
+    const handleCloseQuestionsOverwriteModal = () => setShowQuestionsOverwriteModal(false);
 
     const handleTestYourselfClick = e => {
         e.preventDefault();
@@ -28,8 +39,7 @@ const NoteCard = props => {
 
     const handleQuestGenClick = e => {
         e.preventDefault();
-        dispatch(startQuestionGeneration(props.id));
-        generateQuestions(props.id).then(() => dispatch(finishQuestionGeneration(props.id)));
+        handleQuestGen(props.id, questionsGenerating, dispatch, setShowQuestAlreadyGenModal, setShowQuestionsOverwriteModal, startQuestionGeneration, finishQuestionGeneration);
     }
 
     const handleLinkClick = e => {
@@ -68,6 +78,15 @@ const NoteCard = props => {
                 id={props.id}
                 name={props.name}
                 notes={props.notes}
+            />
+            <QuestionsAlreadyGeneratingModal
+                showModal={showQuestAlreadyGenModal} 
+                handleCloseModal={handleCloseQuestAlreadyGenModal}
+            />
+            <QuestionsOverwriteModal
+                showModal={showQuestionsOverwriteModal} 
+                handleCloseModal={handleCloseQuestionsOverwriteModal}
+                id={props.id}
             />
         </div>
     );

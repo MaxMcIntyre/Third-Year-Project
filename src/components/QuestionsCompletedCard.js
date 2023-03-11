@@ -7,7 +7,7 @@ const QuestionsCompletedCard = props => {
     // Save attempt (no. questions correct out of total) to database
     const recordAttempt = async () => {
         const currTime = new Date().toISOString();
-        const response = await fetch('http://localhost:8000/api/questionsetattempts/', {
+        await fetch('http://localhost:8000/api/questionsetattempts/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -19,8 +19,6 @@ const QuestionsCompletedCard = props => {
                 'attemptDate': currTime
             })
         });
-
-        const responseData = await response.json();
     }
 
     const handleClick = e => {

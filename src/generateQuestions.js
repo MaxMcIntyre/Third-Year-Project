@@ -1,5 +1,6 @@
+// Function that calls API to generate questions for a given topic ID
 const generateQuestions = async topicID => {
-    const response = await fetch('http://localhost:8000/api/questionsets/', {
+    await fetch('http://localhost:8000/api/questionsets/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
