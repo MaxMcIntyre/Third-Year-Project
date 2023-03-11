@@ -1,24 +1,16 @@
 import { Card, Row, Col, Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addQuestionSetAttempt } from '../redux/actions/questionSetAttemptsActions';
 
 const QuestionsCompletedCard = props => {
     const history = useHistory();
+    const dispatch = useDispatch();
     
     // Save attempt (no. questions correct out of total) to database
     const recordAttempt = async () => {
         const currTime = new Date().toISOString();
-        await fetch('http://localhost:8000/api/questionsetattempts/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'questionSetID': props.questionSetID,
-                'totalQuestions': props.total,
-                'correctAnswers': props.noCorrect,
-                'attemptDate': currTime
-            })
-        });
+        dispatch(addQuestionSetAttempt(props.questionSetID, props.total, props.noCorrect, currTime));
     }
 
     const handleClick = e => {
@@ -29,8 +21,6 @@ const QuestionsCompletedCard = props => {
         }
         history.goBack();
     }
-
-    console.log(props);
 
     return (
         <div>

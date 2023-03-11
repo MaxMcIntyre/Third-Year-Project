@@ -1,4 +1,5 @@
 import generateQuestions from './generateQuestions';
+import { wipeQuestionSetAttempts } from './redux/actions/questionSetAttemptsActions';
 
 // Function that deals with question generation including frontend state
 const handleQuestGen = async (id, questionsGenerating, dispatch, setShowQuestAlreadyGenModal, setShowQuestionsOverwriteModal, startQuestionGeneration, finishQuestionGeneration) => {
@@ -7,7 +8,6 @@ const handleQuestGen = async (id, questionsGenerating, dispatch, setShowQuestAlr
         setShowQuestAlreadyGenModal(true);
     } else {
         // Check if questions already exist for the given topic ID
-        console.log(id);
         fetch(`http://localhost:8000/api/topics/${id}/questionsexist`, {
             method: 'GET',
             headers: {
@@ -21,6 +21,7 @@ const handleQuestGen = async (id, questionsGenerating, dispatch, setShowQuestAlr
                     setShowQuestionsOverwriteModal(true);
                 } else {
                     dispatch(startQuestionGeneration(id));
+                    dispatch(wipeQuestionSetAttempts());
                     generateQuestions(id).then(() => dispatch(finishQuestionGeneration(id)));
                 }
             });

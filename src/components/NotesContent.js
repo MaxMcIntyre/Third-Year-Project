@@ -1,13 +1,15 @@
-import { Card, Col, Row, Container, Button } from 'react-bootstrap';
+import { Card, Col, Row, Container, Button, Table } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchQuestions, startQuestionGeneration, finishQuestionGeneration } from '../redux/actions/questionsActions';
 import { useHistory } from 'react-router-dom';
+import { fetchQuestionSetAttempts } from '../redux/actions/questionSetAttemptsActions';
 import handleQuestGen from '../handleQuestGen';
 import QuestionsAlreadyGeneratingModal from './QuestionsAlreadyGeneratingModal';
 import QuestionsOverwriteModal from './QuestionsOverwriteModal';
 
-const selectQuestionsGenerating = state => state.questions.questions_generating;
+const selectQuestionsGenerating = state => state.questions.questions_generating; 
+const selectQuestionSetAttempts = state => state.questionsetattempts.attempts;
 
 const NotesContent = props => {
     const { match } = props;
@@ -15,12 +17,12 @@ const NotesContent = props => {
     const [notesData, setNotesData] = useState({});
     const [showQuestAlreadyGenModal, setShowQuestAlreadyGenModal] = useState(false);
     const [showQuestionsOverwriteModal, setShowQuestionsOverwriteModal] = useState(false);
-    
+
     const questionsGenerating = useSelector(selectQuestionsGenerating);
 
     const dispatch = useDispatch();
     const history = useHistory();
-    
+
     const handleCloseQuestAlreadyGenModal = () => setShowQuestAlreadyGenModal(false);
     const handleCloseQuestionsOverwriteModal = () => setShowQuestionsOverwriteModal(false);
 
@@ -33,6 +35,13 @@ const NotesContent = props => {
         }
         fetchNotesData();
     }, [topicID]);
+
+    // Fetch question set attempts for question set currently associated with topic ID
+    useEffect(() => {
+        dispatch(fetchQuestionSetAttempts(topicID));
+    }, [dispatch, topicID]);
+    
+    const questionSetAttempts = useSelector(selectQuestionSetAttempts);
 
     const handleTestYourselfClick = e => {
         e.preventDefault();
@@ -52,7 +61,7 @@ const NotesContent = props => {
                 <h4>{notesData.topic_name}</h4>
             </div>
             <Card className="w-80 mx-auto mt-3">
-                <Card.Body style={{ whiteSpace: "pre-wrap"}}>
+                <Card.Body style={{ whiteSpace: "pre-wrap" }}>
                     {notesData.notes}
                 </Card.Body>
             </Card>
@@ -62,12 +71,38 @@ const NotesContent = props => {
                     <Button onClick={handleTestYourselfClick} className="mx-4" variant="primary">Test Yourself</Button>
                 </Col>
             </Row>
+            <Row>
+                <h4 className="mt-3">Question Set Attempts</h4>
+                <Table striped>
+                    <thead>
+                        <tr>
+                            <th>Total Questions</th>
+                            <th>Correct Answers</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {questionSetAttempts.map((row, index) => {
+                        // Display date and time in a readable way
+                        const formattedDate = new Date(row.attempt_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+                        const formattedTime = new Date(row.attempt_date).toLocaleTimeString('en-GB', { hour: 'numeric', minute: 'numeric' });
+                        const dateTime = `${formattedDate} ${formattedTime}`;
+                        return (
+                            <tr key={index}>
+                                <td>{row.total_questions}</td>
+                                <td>{row.correct_answers}</td>
+                                <td>{dateTime}</td>
+                            </tr>
+                        )})}
+                    </tbody>
+                </Table>
+            </Row>
             <QuestionsAlreadyGeneratingModal
-                showModal={showQuestAlreadyGenModal} 
+                showModal={showQuestAlreadyGenModal}
                 handleCloseModal={handleCloseQuestAlreadyGenModal}
             />
             <QuestionsOverwriteModal
-                showModal={showQuestionsOverwriteModal} 
+                showModal={showQuestionsOverwriteModal}
                 handleCloseModal={handleCloseQuestionsOverwriteModal}
                 id={topicID}
             />

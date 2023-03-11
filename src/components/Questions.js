@@ -24,7 +24,7 @@ const Questions = props => {
         dispatch(fetchQuestions(topicID));
     }, [dispatch, topicID]);
 
-    const questions = useSelector(selectQuestions);
+    let questions = useSelector(selectQuestions);
     const questionSetID = useSelector(selectQuestionSetID);
     const questionsGenerating = useSelector(selectQuestionsGenerating);
 
@@ -34,29 +34,28 @@ const Questions = props => {
             setQuestion(questions[0].question);
             setAnswer(questions[0].answer)
         }
-    }, [questions]);
+    }, []);
 
-    const loadNextQuestion = prevCorrect => {
+    const loadNextQuestion = (prevCorrect, nextIndex) => {
         if (prevCorrect) {
             setNoCorrect(prevNoCorrect => prevNoCorrect + 1);
         }
         
-        setIndex(prevIndex => {
-            const nextIndex = prevIndex + 1;
-            if (nextIndex < questions.length) {
-                setQuestion(questions[nextIndex].question);
-                setAnswer(questions[nextIndex].answer);
-            }
-            return nextIndex;
-        });
+        setIndex(nextIndex);
+        if (nextIndex < questions.length) {
+            setQuestion(questions[nextIndex].question);
+            setAnswer(questions[nextIndex].answer);
+        }
     }
-  
+
     const handleDelete = e => {
         e.preventDefault();
         dispatch(deleteQuestion(questions[index].id));
-        loadNextQuestion(false);
+        const newQuestions = questions.filter(question => question.id !== questions[index].id);
+        questions = newQuestions;
+        loadNextQuestion(false, index);
     }
-    
+
     let card;
     if (questionsGenerating[topicID]) {
         card = <NoQuestionsCard text="Questions are currently being generated for this set of notes! Check back in a short while to see them." />
@@ -67,7 +66,7 @@ const Questions = props => {
     } else {
         card = <QuestionCard loadNextQuestion={loadNextQuestion} handleDelete={handleDelete} questionNumber={index + 1} total={questions.length} question={question} answer={answer} />;
     }
-    
+
     return (
         <div>
             <h2 className="text-center">Test Yourself</h2>

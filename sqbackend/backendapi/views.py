@@ -165,7 +165,17 @@ class TopicQuestionsView(viewsets.ModelViewSet):
 class QuestionSetAttemptView(viewsets.ModelViewSet):
     queryset = QuestionSetAttempt.objects.all()
     serializer_class = QuestionSetAttemptSerializer 
-
+    
+    # pk is Topic ID, not QuestionSet ID
+    def retrieve(self, request, pk=None):
+        try:
+            question_set = QuestionSet.objects.filter(topic=pk).first()
+            queryset = QuestionSetAttempt.objects.filter(question_set=question_set).order_by('-attempt_date')
+            serializer = self.serializer_class(queryset, many=True)
+            return JsonResponse({'attempts': serializer.data})
+        except QuestionSet.DoesNotExist:
+            return JsonResponse({'attempts': []})
+    
     def create(self, request):
         total_questions = request.data.get('totalQuestions')
         correct_answers = request.data.get('correctAnswers')

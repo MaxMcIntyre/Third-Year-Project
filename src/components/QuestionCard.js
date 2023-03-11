@@ -12,7 +12,7 @@ const QuestionCard = props => {
     }
 
     const setNextQuestion = prevCorrect => {
-        props.loadNextQuestion(prevCorrect);
+        props.loadNextQuestion(prevCorrect, props.questionNumber);
         setQuestionMode(true);
     }
 

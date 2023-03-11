@@ -59,8 +59,8 @@ const NoteCard = props => {
                         <Col className="d-flex justify-content-end">
                             <Button onClick={handleQuestGenClick} className="me-3" variant="primary">Generate Questions</Button>
                             <Button onClick={handleTestYourselfClick} className="me-3" variant="primary">Test Yourself</Button>
-                            <Button style={{ minWidth: "30%" }} onClick={handleUpdate} className="me-3" variant="secondary" type="submit">Edit Topic</Button>
-                            <Button style={{ minWidth: "30%" }} onClick={handleDelete} variant="danger" type="submit">Delete Topic</Button>
+                            <Button onClick={handleUpdate} className="me-3" variant="secondary" type="submit">Edit Topic</Button>
+                            <Button onClick={handleDelete} variant="danger" type="submit">Delete Topic</Button>
                         </Col>
                     </Row>
                 </Card.Body>

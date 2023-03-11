@@ -1,6 +1,7 @@
 import { Modal, Button } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { startQuestionGeneration, finishQuestionGeneration } from '../redux/actions/questionsActions';
+import { wipeQuestionSetAttempts } from '../redux/actions/questionSetAttemptsActions';
 import generateQuestions from '../generateQuestions';
 
 const QuestionsOverwriteModal = props => {
@@ -9,6 +10,7 @@ const QuestionsOverwriteModal = props => {
     const handleContinue = e => {
         e.preventDefault();
         dispatch(startQuestionGeneration(props.id));
+        dispatch(wipeQuestionSetAttempts());
         generateQuestions(props.id).then(() => dispatch(finishQuestionGeneration(props.id)));
         props.handleCloseModal();
     }
