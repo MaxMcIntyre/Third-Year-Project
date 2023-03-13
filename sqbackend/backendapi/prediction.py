@@ -82,7 +82,8 @@ class Predictor:
         final_answer = ''
         for option in mcq_answers:
             final_answer += option + '|'
-        final_answer = final_answer[:-1]
+        # Add on real answer at end
+        final_answer += answer 
         
         return {'type': 'MCQ', 'question': question, 'answer': final_answer}
     

@@ -1,19 +1,32 @@
-import { Card, Row, Col, Form, Button } from 'react-bootstrap';
-import { useState, useRef } from 'react';
+import { Card, Row, Col } from 'react-bootstrap';
+import { useState } from 'react';
+import QuestionTextDisplay from './QuestionTextDisplay';
+import AnswerTextDisplay from './AnswerTextDisplay';
 
 const QuestionCard = props => {
     const [questionMode, setQuestionMode] = useState(true);
+    const [answerCorrect, setAnswerCorrect] = useState(false);
     const [userAnswer, setUserAnswer] = useState('');
-    const inputRef = useRef(null);
 
-    const setQuestionModeOff = () => {
+    const setQuestionModeOff = answer => {
         setQuestionMode(false);
-        setUserAnswer(inputRef.current.value);
+        setUserAnswer(answer);
+    }
+
+    const handleCheckAnswer = (userAnswer, actualAnswer, alwaysCorrect) => {
+        setAnswerCorrect(alwaysCorrect || userAnswer.toLowerCase() === actualAnswer.toLowerCase());
+        setQuestionModeOff(userAnswer);
     }
 
     const setNextQuestion = prevCorrect => {
         props.loadNextQuestion(prevCorrect, props.questionNumber);
         setQuestionMode(true);
+    }
+
+    let mcqOptions = []
+    if (props.questionType === 'MCQ') {
+        // Split MCQ options/answer into 5 separate strings (4 options and real answer at end)
+        mcqOptions = props.answer.split('|');
     }
 
     if (questionMode) {
@@ -31,14 +44,7 @@ const QuestionCard = props => {
                                 Question: <b>{props.question}</b>
                             </Col>
                         </Row>
-                        <Row>
-                            <Col>
-                                <Form.Label>Your answer: </Form.Label>
-                                <Form.Control ref={inputRef} type="text" placeholder="Enter answer" />
-                                <Button onClick={setQuestionModeOff} className="mt-3 me-2" variant="primary" type="submit">See Answer</Button>
-                                <Button onClick={props.handleDelete} className="mt-3" variant="danger" type="submit">Delete this Question</Button>
-                            </Col>
-                        </Row>
+                        <QuestionTextDisplay question={props.question} answer={props.answer} mcqOptions={mcqOptions} questionType={props.questionType} handleCheckAnswer={handleCheckAnswer} setQuestionModeOff={setQuestionModeOff} handleDelete={props.handleDelete}/>
                     </Card.Body>
                 </Card>
             </div>
@@ -58,24 +64,7 @@ const QuestionCard = props => {
                                 Question: <b>{props.question}</b>
                             </Col>
                         </Row>
-                        <Row>
-                            <Col>
-                                Answer: <b>{props.answer}</b>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Form.Label>Your answer: <b>{userAnswer}</b></Form.Label>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Button onClick={() => setNextQuestion(true)} variant="success" className="mt-3">Mark answer correct</Button>
-                            </Col>
-                            <Col>
-                                <Button onClick={() => setNextQuestion(false)} variant="danger" className="mt-3">Mark answer incorrect</Button>
-                            </Col>
-                        </Row>
+                        <AnswerTextDisplay questionType={props.questionType} userAnswer={userAnswer} actualAnswer={props.answer} answerCorrect={answerCorrect} setNextQuestion={setNextQuestion}/>
                     </Card.Body>
                 </Card>
             </div>

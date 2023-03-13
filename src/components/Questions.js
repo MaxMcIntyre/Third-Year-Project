@@ -13,6 +13,7 @@ const Questions = props => {
     const [index, setIndex] = useState(-1);
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
+    const [questionType, setQuestionType] = useState('');
     const [noCorrect, setNoCorrect] = useState(0);
     const dispatch = useDispatch();
 
@@ -32,7 +33,8 @@ const Questions = props => {
         if (questions.length > 0) {
             setIndex(0);
             setQuestion(questions[0].question);
-            setAnswer(questions[0].answer)
+            setAnswer(questions[0].answer);
+            setQuestionType(questions[0].question_type);
         }
     }, []);
 
@@ -45,6 +47,7 @@ const Questions = props => {
         if (nextIndex < questions.length) {
             setQuestion(questions[nextIndex].question);
             setAnswer(questions[nextIndex].answer);
+            setQuestionType(questions[nextIndex].question_type)
         }
     }
 
@@ -64,7 +67,7 @@ const Questions = props => {
     } else if (index >= questions.length) {
         card = <QuestionsCompletedCard questionSetID={questionSetID} noCorrect={noCorrect} total={questions.length} />;
     } else {
-        card = <QuestionCard loadNextQuestion={loadNextQuestion} handleDelete={handleDelete} questionNumber={index + 1} total={questions.length} question={question} answer={answer} />;
+        card = <QuestionCard loadNextQuestion={loadNextQuestion} handleDelete={handleDelete} questionNumber={index + 1} total={questions.length} question={question} answer={answer} questionType={questionType} />;
     }
 
     return (
