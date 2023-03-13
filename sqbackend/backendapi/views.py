@@ -1,9 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework import viewsets, mixins, status
-from rest_framework.views import APIView
 from .models import Course
 from .models import Topic
 from .models import QuestionSet
@@ -16,6 +15,8 @@ from .serializers import QuestionSerializer
 from .serializers import QuestionSetAttemptSerializer
 from .serializers import NotesContentSerializer 
 from .prediction import Predictor
+from scipy.special import expit
+import random
 
 class CourseView(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -136,10 +137,11 @@ class QuestionSetView(viewsets.ModelViewSet):
             question_answers = self.predictor.predict(notes)
             # Separate each question-answer pair out and add it to database
             for qa in question_answers:
-                question = qa['question'] + '?'
+                question = qa['question']
                 answer = qa['answer']
+                question_type = qa['type']
                 question = Question(
-                    question_set=question_set, question_type='SA', question=question, answer=answer)
+                    question_set=question_set, question_type=question_type, question=question, answer=answer)
                 question.save()
             return JsonResponse({'success': True})
         except Topic.DoesNotExist:
@@ -148,19 +150,75 @@ class QuestionSetView(viewsets.ModelViewSet):
 class TopicQuestionsView(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer 
+    
+    # Calculate user score for their 50 most recent attempts at the question set
+    def calculate_user_score(self):
+        recent_attempts = QuestionSetAttempt.objects.order_by('-attempt_date')[:50]
+        oldest_attempt_date = recent_attempts[len(recent_attempts)-1].attempt_date
+        total_distance = (timezone.now() - oldest_attempt_date).total_seconds()
 
-    # Get all questions for a specific question set ID
-    # REPLACE WITH MORE COMPLEX METHOD OF SELECTING QUESTIONS
+        # Calculate the total sum of (1 - normalised distances) multiplied by the fraction of correct answers
+        total_correct_normalised = 0
+        for attempt in recent_attempts:
+            normalised_distance = (timezone.now() - attempt.attempt_date).total_seconds() / total_distance
+            total_correct_normalised += (attempt.correct_answers / attempt.total_questions) * (1 - normalised_distance)
+        
+        # Divide total number of actual results normalised by recency by sum of all 100% results normalised by recency
+        return total_correct_normalised / total_distance
+    
+    # Get subset of questions for a specific question set ID based on user
+    # score on attempts on that question set
     def list(self, request, *args, **kwargs):
         try:
             # Saves from request failing in case there are somehow multiple sets for the same topic
             question_set = QuestionSet.objects.filter(topic=self.kwargs['topic_pk']).first()
         except QuestionSet.DoesNotExist:
             return JsonResponse({'question_set_id': -1, 'questions': []})
+       
+        questions_in_set = Question.objects.filter(question_set=question_set).order_by('?')
+        score = self.calculate_user_score()
 
-        questions_in_set = Question.objects.filter(question_set=question_set)
-        serializer = QuestionSerializer(questions_in_set, many=True)
-        return JsonResponse({'question_set_id': question_set.id, 'questions': serializer.data})
+        probabilities = {
+            'SA': expit(0.5 + 10 * score),
+            'FIB': expit(0.2 + 10 * score),
+            'MCQ': expit(0.2 + 10 * score),
+            'TF': expit(0.1 + 10 * score),
+        }
+        total = sum(probabilities.values())
+        normalised_probabilities = {type: prob / total for type, prob in probabilities.items()}
+        
+        questions_sa = list(questions_in_set.filter(question_type='SA'))
+        questions_fib = list(questions_in_set.filter(question_type='FIB'))
+        questions_mcq = list(questions_in_set.filter(question_type='MCQ'))
+        questions_tf = list(questions_in_set.filter(question_type='TF'))
+        
+        picked_questions = []
+        while len(picked_questions) < 20:
+            category_probs = [len(questions_sa) * normalised_probabilities['SA'],
+                              len(questions_fib) * normalised_probabilities['FIB'],
+                              len(questions_mcq) * normalised_probabilities['MCQ'],
+                              len(questions_tf) * normalised_probabilities['TF']]
+            total_probs = sum(category_probs)
+            if total_probs == 0:
+                break
+            
+            category_probs = [p / total_probs for p in category_probs]
+            # Choose a category with probability proportional to the number of
+            # unpicked questions left in the category
+            category = random.choices(['SA', 'FIB', 'MCQ', 'TF'], weights=category_probs)[0]
+        
+            if category == 'SA':
+                question = questions_sa.pop()
+            elif category == 'FIB':
+                question = questions_fib.pop()
+            elif category == 'MCQ':
+                question = questions_mcq.pop()
+            elif category == 'TF':
+                question = questions_tf.pop()
+            
+            picked_questions.append(question)
+
+        return JsonResponse({'question_set_id': question_set.id, 'questions': [QuestionSerializer(q).data for q in picked_questions]})
 
 class QuestionSetAttemptView(viewsets.ModelViewSet):
     queryset = QuestionSetAttempt.objects.all()
@@ -196,6 +254,5 @@ class QuestionsExistView(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = QuestionSet.objects.all()
 
     def list(self, request, *args, **kwargs):
-        print(self.kwargs['topic_pk'])
         question_set = QuestionSet.objects.filter(topic=self.kwargs['topic_pk'])
         return JsonResponse({'exists': question_set.exists()})
