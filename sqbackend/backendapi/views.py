@@ -179,10 +179,10 @@ class TopicQuestionsView(viewsets.ModelViewSet):
         score = self.calculate_user_score()
 
         probabilities = {
-            'SA': expit(0.5 + 10 * score),
-            'FIB': expit(0.2 + 10 * score),
-            'MCQ': expit(0.2 + 10 * score),
-            'TF': expit(0.1 + 10 * score),
+            'SA': expit(0.5 + 5 * score),
+            'FIB': expit(0.2 - 5 * score),
+            'MCQ': expit(0.2 - 5 * score),
+            'TF': expit(0.1 - 10 * score),
         }
         total = sum(probabilities.values())
         normalised_probabilities = {type: prob / total for type, prob in probabilities.items()}
