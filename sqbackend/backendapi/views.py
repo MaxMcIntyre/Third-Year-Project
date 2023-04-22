@@ -39,12 +39,12 @@ class CourseView(viewsets.ModelViewSet):
             serializer = self.serializer_class(course)
             return JsonResponse({'course': serializer.data})
         except Course.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
     
     def destroy(self, request, pk=None):
         course = Course.objects.get(pk=pk)
         course.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=204)
     
     def update(self, request, pk=None):
         course = Course.objects.get(pk=pk)
@@ -76,7 +76,7 @@ class TopicView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         topic = Topic.objects.get(pk=pk)
         topic.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=204)
     
     def update(self, request, pk=None):
         topic = Topic.objects.get(pk=pk)
@@ -93,7 +93,13 @@ class CourseTopicsView(viewsets.ModelViewSet):
     
     def list(self, request, *args, **kwargs):
         # Get topics for a particular course ID
-        course_id = self.kwargs['course_pk']
+        try:
+            # Check course exists
+            course_id = self.kwargs['course_pk']
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return JsonResponse({'topics': []}, status=404)
+ 
         topics_for_course = Topic.objects.filter(course=course_id)
         serializer = self.serializer_class(topics_for_course, many=True)
         return JsonResponse({'topics': serializer.data})
@@ -107,7 +113,7 @@ class NotesContentView(viewsets.ModelViewSet):
             serializer = self.serializer_class(topic)
             return JsonResponse({'topic': serializer.data})
         except Topic.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
 
 class QuestionView(viewsets.ModelViewSet):
     queryset = Question.objects.all()
@@ -116,7 +122,7 @@ class QuestionView(viewsets.ModelViewSet):
     def destroy(self, request, pk):
         question = Question.objects.get(pk=pk)
         question.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=204)
 
 class QuestionSetView(viewsets.ModelViewSet):
     queryset = QuestionSet.objects.all()
@@ -172,8 +178,10 @@ class TopicQuestionsView(viewsets.ModelViewSet):
         try:
             # Saves from request failing in case there are somehow multiple sets for the same topic
             question_set = QuestionSet.objects.filter(topic=self.kwargs['topic_pk']).first()
-        except QuestionSet.DoesNotExist:
-            return JsonResponse({'question_set_id': -1, 'questions': []})
+            if question_set is None:
+                raise QuestionSet.DoesNotExist
+        except Exception:
+            return JsonResponse({'question_set_id': -1, 'questions': []}, status=404)
        
         questions_in_set = Question.objects.filter(question_set=question_set).order_by('?')
         score = self.calculate_user_score()

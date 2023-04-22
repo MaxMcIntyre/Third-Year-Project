@@ -3,7 +3,8 @@ depending on whether or not questions are currently being generated for that ID
 */
 const initialState = {
     questions: [],
-    questions_generating: {}
+    questions_generating: {},
+    question_set_id: null
 };
 
 const questionsReducer = (state = initialState, action) => {
@@ -16,6 +17,8 @@ const questionsReducer = (state = initialState, action) => {
             return { ...state, questions_generating: { ...state.questions_generating, [action.payload]: true } };
         case 'questions/finishgenerating':
             return { ...state, questions_generating: { ...state.questions_generating, [action.payload]: false } };
+        case 'questions/wipe':
+            return { ...state, questions: [], question_set_id: null};
         default:
             return state;
     }

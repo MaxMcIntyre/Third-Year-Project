@@ -2,8 +2,8 @@ import '../App.css';
 
 function Header() {
     return (
-        <div>
-            <h1 className="App-header"><a style={{color: 'white', textDecoration: 'none'}} href="/">SmartQuestions</a></h1>
+        <div className="bg-dark py-3 text-center">
+            <h1><a style={{color: 'white', textDecoration: 'none'}} href="/">SmartQuestions</a></h1>
         </div>
     );
 }

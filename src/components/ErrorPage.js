@@ -1,16 +1,15 @@
-/*import { useRouteError } from "react-router-dom";
+import BackButton from './BackButton';
 
-const Error = () => {
-    const error = useRouteError();
-    console.log(error);
-
+const Error = props => {
     return (
         <div style={{ textAlign: "center" }}>
             <h2>Oops!</h2>
+            <br />
             <p>An unexpected error occurred. Sorry about that.</p>
-            <p>{error.statusText || error.message}</p>
+            <p>{`${props.statusText} - ${props.message}`}</p>
+            <BackButton />
         </div>
     );
 }
 
-export default Error;*/
+export default Error;

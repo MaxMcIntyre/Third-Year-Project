@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchQuestions, deleteQuestion } from '../redux/actions/questionsActions';
 import NoQuestionsCard from './NoQuestionsCard';
 import QuestionsCompletedCard from './QuestionsCompletedCard';
+import Error from './ErrorPage';
 
 const selectQuestions = state => state.questions.questions;
 const selectQuestionsGenerating = state => state.questions.questions_generating;
@@ -15,6 +16,7 @@ const Questions = props => {
     const [answer, setAnswer] = useState('');
     const [questionType, setQuestionType] = useState('');
     const [noCorrect, setNoCorrect] = useState(0);
+    const [errorStatus, setErrorStatus] = useState(0);
     const dispatch = useDispatch();
 
     const { match } = props;
@@ -35,14 +37,17 @@ const Questions = props => {
             setQuestion(questions[0].question);
             setAnswer(questions[0].answer);
             setQuestionType(questions[0].question_type);
+        } else if (questionSetID === -1) {
+            // Question status of -1 means no topic for topic ID found
+            setErrorStatus(404);
         }
-    }, []);
+    }, [questions]);
 
     const loadNextQuestion = (prevCorrect, nextIndex) => {
         if (prevCorrect) {
             setNoCorrect(prevNoCorrect => prevNoCorrect + 1);
         }
-        
+
         setIndex(nextIndex);
         if (nextIndex < questions.length) {
             setQuestion(questions[nextIndex].question);
@@ -70,12 +75,20 @@ const Questions = props => {
         card = <QuestionCard loadNextQuestion={loadNextQuestion} handleDelete={handleDelete} questionNumber={index + 1} total={questions.length} question={question} answer={answer} questionType={questionType} />;
     }
 
-    return (
-        <div>
-            <h2 className="text-center">Test Yourself</h2>
-            {card}
-        </div>
-    );
+    if (errorStatus !== 0) {
+        return (
+            <div>
+                <Error statusText={errorStatus} message={'Topic not found.'} />
+            </div>
+        )
+    } else {
+        return (
+            <div>
+                <h2 className="text-center">Test Yourself</h2>
+                {card}
+            </div>
+        );
+    }
 }
 
 export default Questions;
