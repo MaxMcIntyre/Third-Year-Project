@@ -1,10 +1,8 @@
 import NoteCard from './NoteCard';
 import NewNotes from './NewNotes';
-import BackButton from './BackButton';
 import { fetchTopics } from '../redux/actions/topicsActions';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Row, Col } from 'react-bootstrap';
 import Error from './ErrorPage';
 
 const selectTopics = state => state.topics.topics;

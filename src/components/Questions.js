@@ -1,4 +1,4 @@
-import QuestionCard from './QuestionCard';
+import QuestionAnswerCard from './QuestionAnswerCard';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchQuestions, deleteQuestion } from '../redux/actions/questionsActions';
@@ -72,7 +72,7 @@ const Questions = props => {
     } else if (index >= questions.length) {
         card = <QuestionsCompletedCard questionSetID={questionSetID} noCorrect={noCorrect} total={questions.length} />;
     } else {
-        card = <QuestionCard loadNextQuestion={loadNextQuestion} handleDelete={handleDelete} questionNumber={index + 1} total={questions.length} question={question} answer={answer} questionType={questionType} />;
+        card = <QuestionAnswerCard loadNextQuestion={loadNextQuestion} handleDelete={handleDelete} questionNumber={index + 1} total={questions.length} question={question} answer={answer} questionType={questionType} />;
     }
 
     if (errorStatus !== 0) {
@@ -80,7 +80,7 @@ const Questions = props => {
             <div>
                 <Error statusText={errorStatus} message={'Topic not found.'} />
             </div>
-        )
+        );
     } else {
         return (
             <div>

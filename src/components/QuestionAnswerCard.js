@@ -3,18 +3,29 @@ import { useState } from 'react';
 import QuestionTextDisplay from './QuestionTextDisplay';
 import AnswerTextDisplay from './AnswerTextDisplay';
 
-const QuestionCard = props => {
+const QuestionAnswerCard = props => {
     const [questionMode, setQuestionMode] = useState(true);
     const [answerCorrect, setAnswerCorrect] = useState(false);
-    const [userAnswer, setUserAnswer] = useState('');
+    const [userAnswer, setUserAnswer] = useState('')
+    const [actualAnswer, setActualAnswer] = useState('');
 
     const setQuestionModeOff = answer => {
         setQuestionMode(false);
         setUserAnswer(answer);
     }
 
-    const handleCheckAnswer = (userAnswer, actualAnswer, alwaysCorrect) => {
-        setAnswerCorrect(alwaysCorrect || userAnswer.toLowerCase() === actualAnswer.toLowerCase());
+    const handleCheckAnswer = (userAnswer, alwaysCorrect) => {
+        console.log(userAnswer);
+        console.log(props.answer);
+        let correctAnswer;
+        if (props.questionType == 'MCQ') {
+           correctAnswer = props.answer.split('|')[4];
+        } else {
+           correctAnswer = props.answer;
+        }
+        // Set answer to pass as prop to AnswerTextDisplay
+        setActualAnswer(correctAnswer);
+        setAnswerCorrect(alwaysCorrect || userAnswer.toLowerCase() === correctAnswer.toLowerCase());
         setQuestionModeOff(userAnswer);
     }
 
@@ -44,7 +55,7 @@ const QuestionCard = props => {
                                 Question: <b>{props.question}</b>
                             </Col>
                         </Row>
-                        <QuestionTextDisplay question={props.question} answer={props.answer} mcqOptions={mcqOptions} questionType={props.questionType} handleCheckAnswer={handleCheckAnswer} setQuestionModeOff={setQuestionModeOff} handleDelete={props.handleDelete}/>
+                        <QuestionTextDisplay mcqOptions={mcqOptions} questionType={props.questionType} handleCheckAnswer={handleCheckAnswer} setQuestionModeOff={setQuestionModeOff} handleDelete={props.handleDelete}/>
                     </Card.Body>
                 </Card>
             </div>
@@ -64,7 +75,7 @@ const QuestionCard = props => {
                                 Question: <b>{props.question}</b>
                             </Col>
                         </Row>
-                        <AnswerTextDisplay questionType={props.questionType} userAnswer={userAnswer} actualAnswer={props.answer} answerCorrect={answerCorrect} setNextQuestion={setNextQuestion}/>
+                        <AnswerTextDisplay mcqOptions={mcqOptions} questionType={props.questionType} userAnswer={userAnswer} actualAnswer={actualAnswer} answerCorrect={answerCorrect} setNextQuestion={setNextQuestion}/>
                     </Card.Body>
                 </Card>
             </div>
@@ -72,4 +83,4 @@ const QuestionCard = props => {
     }
 }
 
-export default QuestionCard;
+export default QuestionAnswerCard;

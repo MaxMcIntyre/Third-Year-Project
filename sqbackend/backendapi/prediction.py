@@ -85,7 +85,7 @@ class Predictor:
         for option in mcq_answers:
             final_answer += option + '|'
         # Add on real answer at end
-        final_answer += answer
+        final_answer += answer.capitalize()
 
         return {'type': 'MCQ', 'question': question, 'answer': final_answer}
 

@@ -10,18 +10,12 @@ const QuestionTextDisplay = props => {
 
     const handleAnswerNoCheck = e => {
         e.preventDefault();
-        // Answer only passed here so it can be displayed in AnswerTextDisplay
-        props.handleCheckAnswer(userAnswer, props.answer, true);
-    } 
-
-    const handleAnswerMCQ = e => {
-        e.preventDefault();
-        props.handleCheckAnswer(userAnswer, props.mcqOptions[3], false);
+        props.handleCheckAnswer(userAnswer, true);
     }
 
     const handleAnswer = e => {
         e.preventDefault();
-        props.handleCheckAnswer(userAnswer, props.answer, false);
+        props.handleCheckAnswer(userAnswer, false);
     }
 
     if (props.questionType === 'SA' || props.questionType === 'FIB') {
@@ -89,7 +83,7 @@ const QuestionTextDisplay = props => {
                             onChange={e => setUserAnswer(e.target.value)}
                         />
                     </div>
-                    <Button onClick={handleAnswerMCQ} className="mt-3 me-2" variant="primary" type="submit">Check Answer</Button>
+                    <Button onClick={handleAnswer} className="mt-3 me-2" variant="primary" type="submit">Check Answer</Button>
                     <Button onClick={props.handleDelete} className="mt-3" variant="danger" type="submit">Delete this Question</Button>
                 </Col>
             </Row>
