@@ -10,7 +10,6 @@ import Notes from './components/Notes';
 import NotesContent from './components/NotesContent';
 import Questions from './components/Questions';
 import Header from './components/Header';
-import BackButtonHeader from './components/BackButtonHeader';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -18,7 +17,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <Provider store={store}>
         <Router>
-            <BackButtonHeader />
+            <Header />
             <Switch>
                 <Route exact path='/' component={App}/>
                 <Route exact path='/notes/:courseID' component={Notes}/>
