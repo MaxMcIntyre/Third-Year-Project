@@ -15,8 +15,6 @@ const QuestionAnswerCard = props => {
     }
 
     const handleCheckAnswer = (userAnswer, alwaysCorrect) => {
-        console.log(userAnswer);
-        console.log(props.answer);
         let correctAnswer;
         if (props.questionType == 'MCQ') {
            correctAnswer = props.answer.split('|')[4];

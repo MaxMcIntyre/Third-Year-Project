@@ -83,7 +83,7 @@ class Predictor:
         # Convert to string for DB
         final_answer = ''
         for option in mcq_answers:
-            final_answer += option + '|'
+            final_answer += option.capitalize() + '|'
         # Add on real answer at end
         final_answer += answer.capitalize()
 

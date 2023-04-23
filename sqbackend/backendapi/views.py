@@ -158,8 +158,10 @@ class TopicQuestionsView(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer 
     
     # Calculate user score for their 50 most recent attempts at the question set
-    def calculate_user_score(self):
-        recent_attempts = QuestionSetAttempt.objects.order_by('-attempt_date')[:50]
+    def calculate_user_score(self, question_set):
+        recent_attempts = QuestionSetAttempt.objects.filter(question_set=question_set).order_by('-attempt_date')[:50]
+        if len(recent_attempts) == 0:
+            return 0
         oldest_attempt_date = recent_attempts[len(recent_attempts)-1].attempt_date
         total_distance = (timezone.now() - oldest_attempt_date).total_seconds()
 
@@ -176,15 +178,20 @@ class TopicQuestionsView(viewsets.ModelViewSet):
     # score on attempts on that question set
     def list(self, request, *args, **kwargs):
         try:
+            topic = Topic.objects.get(id=self.kwargs['topic_pk'])
+        except Topic.DoesNotExist:
+            return JsonResponse({'question_set_id': -1, 'questions': []}, status=404)
+
+        try:
             # Saves from request failing in case there are somehow multiple sets for the same topic
             question_set = QuestionSet.objects.filter(topic=self.kwargs['topic_pk']).first()
             if question_set is None:
                 raise QuestionSet.DoesNotExist
         except Exception:
-            return JsonResponse({'question_set_id': -1, 'questions': []}, status=404)
+            return JsonResponse({'question_set_id': 0, 'questions': []})
        
         questions_in_set = Question.objects.filter(question_set=question_set).order_by('?')
-        score = self.calculate_user_score()
+        score = self.calculate_user_score(question_set)
 
         probabilities = {
             'SA': expit(0.5 + 5 * score),
