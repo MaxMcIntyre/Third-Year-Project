@@ -209,26 +209,27 @@ class TopicQuestionsView(viewsets.ModelViewSet):
         
         picked_questions = []
         while len(picked_questions) < 20:
-            category_probs = [len(questions_sa) * normalised_probabilities['SA'],
+            question_type_probabilities = [len(questions_sa) * normalised_probabilities['SA'],
                               len(questions_fib) * normalised_probabilities['FIB'],
                               len(questions_mcq) * normalised_probabilities['MCQ'],
                               len(questions_tf) * normalised_probabilities['TF']]
-            total_probs = sum(category_probs)
-            if total_probs == 0:
+            total_probability = sum(question_type_probabilities)
+            if total_probability == 0:
+                # Exhausted all questions
                 break
             
-            category_probs = [p / total_probs for p in category_probs]
-            # Choose a category with probability proportional to the number of
-            # unpicked questions left in the category
-            category = random.choices(['SA', 'FIB', 'MCQ', 'TF'], weights=category_probs)[0]
+            question_type_probabilities = [p / total_probability for p in question_type_probabilities]
+            # Choose a question type with probability proportional to the
+            # number of unpicked questions left in the question type
+            question_type = random.choices(['SA', 'FIB', 'MCQ', 'TF'], weights=question_type_probabilities)[0]
         
-            if category == 'SA':
+            if question_type == 'SA':
                 question = questions_sa.pop()
-            elif category == 'FIB':
+            elif question_type == 'FIB':
                 question = questions_fib.pop()
-            elif category == 'MCQ':
+            elif question_type == 'MCQ':
                 question = questions_mcq.pop()
-            elif category == 'TF':
+            elif question_type == 'TF':
                 question = questions_tf.pop()
             
             picked_questions.append(question)
