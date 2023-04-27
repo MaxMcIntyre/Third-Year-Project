@@ -1,13 +1,12 @@
-import './App.css';
-import CourseCard from './components/CourseCard';
-import NewCourse from './components/NewCourse';
-import { fetchCourses } from './redux/actions/coursesActions';
+import CourseCard from './CourseCard';
+import NewCourse from './NewCourse';
+import { fetchCourses } from '../redux/actions/coursesActions';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const selectCourses = state => state.courses.courses;
 
-function App() {
+const Courses = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -28,4 +27,4 @@ function App() {
     );
 }
 
-export default App;
+export default Courses;

@@ -33,7 +33,6 @@ const NoteCard = props => {
 
     const handleTestYourselfClick = e => {
         e.preventDefault();
-        dispatch(fetchQuestions(props.id));
         history.push(`/questions/${props.id}`, { state: props.state });
     }
 

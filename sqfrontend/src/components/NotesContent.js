@@ -51,7 +51,6 @@ const NotesContent = props => {
 
     const handleTestYourselfClick = e => {
         e.preventDefault();
-        dispatch(fetchQuestions(topicID));
         history.push(`/questions/${topicID}`);
     }
 

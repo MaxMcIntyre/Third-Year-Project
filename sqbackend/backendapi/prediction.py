@@ -47,16 +47,6 @@ class Predictor:
                     {'type': 'SA', 'question': question_answer[0] + '?', 'answer': question_answer[1]})
         
         return predicted_questions
-        #decoded_output = self.tokenizer.batch_decode(
-            #output, skip_special_tokens=True)[0]
-        #prediction = nltk.sent_tokenize(decoded_output.strip())[0]
-        #question_answer = prediction.split('?')
-
-        # If not exactly one question mark discard question, something is malformed
-        #if len(question_answer) == 2:
-            #return {'type': 'SA', 'question': question_answer[0] + '?', 'answer': question_answer[1]}
-        #else:
-            #return None
 
     def predict_mcq(self, question, answer):
         synsets = wn.synsets(answer, 'n')
@@ -250,7 +240,7 @@ class Predictor:
         for chunk in chunked_text:
             no_sentences = len(nltk.sent_tokenize(chunk))
             predicted_questions_sa = self.predict_sa(chunk, no_sentences + 2)
-            
+
             if predicted_questions_sa:
                 # Don't include '?' in sentence
                 question_vectors = vectoriser.fit_transform([
@@ -263,9 +253,10 @@ class Predictor:
                 remove_list = []
                 # Remove questions too similar to each other
                 for i in range(len(predicted_questions_sa)):
-                    for j in range(i+1, len(predicted_questions_sa)):
-                        if question_similarity_matrix[i][j] > 0.7 or answer_similarity_matrix[i][j] > 0.9:
-                            remove_list.append(j)
+                    if i not in remove_list:
+                        for j in range(i+1, len(predicted_questions_sa)):
+                            if question_similarity_matrix[i][j] > 0.7 or answer_similarity_matrix[i][j] > 0.9:
+                                remove_list.append(j)
                 
                 sa_questions = [
                     predicted_questions_sa[i] for i in range(len(predicted_questions_sa)) if i not in remove_list]

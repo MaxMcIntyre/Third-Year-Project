@@ -1,4 +1,5 @@
-/node_modules
+sqfrontend/node_modules
+sqfrontend/public
 requirements.txt
 sqbackend/backendapi/__pycache__
 sqbackend/migrations/__pycache__
