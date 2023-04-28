@@ -1,6 +1,6 @@
 export const fetchQuestionSetAttempts = topicID => {
     return dispatch => {
-        return fetch(`http://localhost:8000/api/questionsetattempts/${topicID}`)
+        return fetch(`http://localhost:8000/api/topics/${topicID}/questionsetattempts/`)
             .then(response => response.json())
             .then(json => {
                 dispatch({ type: 'questionsetattempts/fetch', payload: json.attempts });

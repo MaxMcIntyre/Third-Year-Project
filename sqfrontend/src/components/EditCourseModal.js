@@ -22,11 +22,11 @@ const EditCourseModal = props => {
             <Modal.Body>
                 <Form>
                     <Form.Label>Course Name:</Form.Label>
-                    <Form.Control type="text" ref={nameInputRef} placeholder="Enter course name" defaultValue={props.name} />
+                    <Form.Control id="edit-course-name" type="text" ref={nameInputRef} placeholder="Enter course name" defaultValue={props.name} />
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleUpdate}>
+                <Button id="edit-course-submit" variant="secondary" onClick={handleUpdate}>
                     Submit
                 </Button>
             </Modal.Footer>

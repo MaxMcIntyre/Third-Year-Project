@@ -1,3 +1,6 @@
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
 from transformers import GPT2Tokenizer, TFGPT2LMHeadModel
 from allennlp.predictors.predictor import Predictor
 from nltk.tree import Tree
@@ -12,9 +15,7 @@ nltk.download('omw-1.4')
 nltk.download('punkt')
 nltk.download('stopwords')
 #import tensorflow as tf
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+
 
 class Predictor:
     model_dir = "./backendapi/DLModels/checkpoint-2200"
@@ -27,7 +28,7 @@ class Predictor:
         "gpt2", pad_token_id=GPT2Tokenizer.eos_token_id)
 
     def predict_sa(self, sentence, num_return_sequences):
-        predicted_questions = [] 
+        predicted_questions = []
 
         inputs = ["summarize: " + sentence]
         inputs = self.T5Tokenizer(inputs, max_length=512,
@@ -45,14 +46,14 @@ class Predictor:
             if len(question_answer) == 2:
                 predicted_questions.append(
                     {'type': 'SA', 'question': question_answer[0] + '?', 'answer': question_answer[1]})
-        
+
         return predicted_questions
 
     def predict_mcq(self, question, answer):
         synsets = wn.synsets(answer, 'n')
         if not synsets:
             return None
-        synset = random.choice(synsets)
+        synset = synsets[0]
         hypernyms = synset.hypernyms()
         distractors = []
 
@@ -63,13 +64,13 @@ class Predictor:
                     distractor = hyponym.lemma_names()[0]
                 except IndexError:
                     return None
-                # Deal with multi-word distractors 
+                # Deal with multi-word distractors
                 distractor = distractor.replace('_', ' ')
-                
+
                 # Avoid duplicate options
                 if distractor != answer and distractor not in distractors:
                     distractors.append(distractor.title())
-        
+
         # Always need at least 3 distractors
         if len(distractors) < 3:
             return None
@@ -93,18 +94,19 @@ class Predictor:
         def get_keyphrases(text):
             try:
                 stoplist = stopwords.words('english')
-                text = ' '.join([word for word in text.split() if word.lower() not in stoplist])
+                text = ' '.join([word for word in text.split()
+                                if word.lower() not in stoplist])
 
                 extractor = pke.unsupervised.MultipartiteRank()
                 extractor.load_document(input=text, language='en')
                 extractor.candidate_selection()
                 extractor.candidate_weighting()
                 keyphrases = extractor.get_n_best(n=15)
-                return keyphrases 
+                return keyphrases
             except Exception as e:
                 print(e)
                 return None
-        
+
         def get_keyphrase_sentence_mapping(keyphrases, sentences):
             keyphrase_sentence_mapping = {}
             for item in keyphrases:
@@ -114,14 +116,15 @@ class Predictor:
                 for sentence in sentences:
                     if keyphrase in sentence:
                         keyphrase_sentence_mapping[keyphrase].append(sentence)
-  
+
             return keyphrase_sentence_mapping
-            
+
         keyphrases = get_keyphrases(text)
         if not keyphrases:
             return None
         sentences = nltk.sent_tokenize(text)
-        keyphrase_sentence_mapping = get_keyphrase_sentence_mapping(keyphrases, sentences)
+        keyphrase_sentence_mapping = get_keyphrase_sentence_mapping(
+            keyphrases, sentences)
         output_questions = []
 
         for keyphrase in keyphrase_sentence_mapping.keys():
@@ -148,16 +151,17 @@ class Predictor:
                     return rightmost_vp, rightmost_np
             else:
                 return rightmost_vp, rightmost_np
-        
+
         def get_cutoff_sentence(sentence, ending):
             sentence_split = sentence.split()
             ending_split = ending.split()
             try:
-                cutoff_sentence_split = sentence_split[:len(sentence_split)-len(ending_split)]
+                cutoff_sentence_split = sentence_split[:len(
+                    sentence_split)-len(ending_split)]
             except IndexError:
                 return None
-            return  ' '.join(cutoff_sentence_split)
-    
+            return ' '.join(cutoff_sentence_split)
+
         try:
             true_false = ["True", "False"]
             true_or_false = random.choice(true_false)
@@ -166,8 +170,9 @@ class Predictor:
 
             # Strip trailing punctuation
             sentence = sentence.rstrip('?:!.,;')
-            parse_tree = Tree.fromstring(self.constituency_predictor.predict(sentence=sentence)['trees'])
-   
+            parse_tree = Tree.fromstring(
+                self.constituency_predictor.predict(sentence=sentence)['trees'])
+
             rightmost_vp, rightmost_np = find_rightmost_vp_np(parse_tree)
             if not rightmost_vp and not rightmost_np:
                 return None
@@ -178,8 +183,9 @@ class Predictor:
             else:
                 sentence_ending_vp = ' '.join(rightmost_vp.leaves())
                 sentence_ending_np = ' '.join(rightmost_np.leaves())
-                sentence_ending = max(sentence_ending_vp, sentence_ending_np, key=len)
-            
+                sentence_ending = max(sentence_ending_vp,
+                                      sentence_ending_np, key=len)
+
             cutoff_sentence = get_cutoff_sentence(sentence, sentence_ending)
             if not cutoff_sentence:
                 return None
@@ -196,7 +202,7 @@ class Predictor:
             no_repeat_ngram_size=2,
             repetition_penalty=10.0,
             temperature=0.8,
-            num_return_sequences=10
+            num_return_sequences=3
         )
 
         generated_sentences = []
@@ -208,34 +214,46 @@ class Predictor:
 
         false_sentence = random.choice(generated_sentences)
         return {'type': 'TF', 'question': 'True or False? ' + false_sentence, 'answer': 'False'}
-    
+
     def chunk_text(self, text, chunk_size):
         chunks = []
         words = text.split()
         current_chunk = ""
-    
+
         for word in words:
             if len(current_chunk) + len(word) + 1 <= chunk_size:
                 current_chunk += word + " "
             else:
                 chunks.append(current_chunk)
                 current_chunk = word + " "
-    
+
         if current_chunk:
             chunks.append(current_chunk)
-    
+
         return chunks
+    
+    def predict_sa_mcq(self, text, predict_mcq):
 
-    def predict(self, text):
-        predicted_questions = []
+        def chunk_text(text, chunk_size):
+            chunks = []
+            words = text.split()
+            current_chunk = ""
 
-        # FIB questions
-        fib_questions = self.predict_fib(text)
-        if fib_questions:
-            predicted_questions += fib_questions
+            for word in words:
+                if len(current_chunk) + len(word) + 1 <= chunk_size:
+                    current_chunk += word + " "
+                else:
+                    chunks.append(current_chunk)
+                    current_chunk = word + " "
+
+            if current_chunk:
+                chunks.append(current_chunk)
+
+            return chunks
+
+        output_questions = []
         
-        # SA and MCQ questions
-        chunked_text = self.chunk_text(text, 256)
+        chunked_text = chunk_text(text, 256)
         vectoriser = TfidfVectorizer()
         for chunk in chunked_text:
             no_sentences = len(nltk.sent_tokenize(chunk))
@@ -247,7 +265,8 @@ class Predictor:
                     question['question'][:-1] for question in predicted_questions_sa])
                 answer_vectors = vectoriser.fit_transform([
                     question['answer'][:-1] for question in predicted_questions_sa])
-                question_similarity_matrix = cosine_similarity(question_vectors)
+                question_similarity_matrix = cosine_similarity(
+                    question_vectors)
                 answer_similarity_matrix = cosine_similarity(answer_vectors)
 
                 remove_list = []
@@ -257,23 +276,39 @@ class Predictor:
                         for j in range(i+1, len(predicted_questions_sa)):
                             if question_similarity_matrix[i][j] > 0.7 or answer_similarity_matrix[i][j] > 0.9:
                                 remove_list.append(j)
-                
+
                 sa_questions = [
                     predicted_questions_sa[i] for i in range(len(predicted_questions_sa)) if i not in remove_list]
-                
-                # Now try to generate MCQs
-                for question in sa_questions:
-                    # If only one word in answer we can generate an MCQ,
-                    # otherwise leave as it is
-                    if len(' '.split(question['answer'])) == 1:
-                        predicted_question_mcq = self.predict_mcq(
-                            question['question'], question['answer'])
-                        if predicted_question_mcq:
-                            predicted_questions.append(predicted_question_mcq)
+
+                # Now try to generate MCQs if enabled
+                if predict_mcq:
+                    for question in sa_questions:
+                        # If only one word in answer we can generate an MCQ,
+                        # otherwise leave as it is
+                        if len(' '.split(question['answer'])) == 1:
+                            predicted_question_mcq = self.predict_mcq(
+                                question['question'], question['answer'])
+                            if predicted_question_mcq:
+                                output_questions.append(predicted_question_mcq)
+                            else:
+                                output_questions.append(question)
                         else:
-                            predicted_questions.append(question)
-                    else:
-                        predicted_questions.append(question)
+                            output_questions.append(question)
+        
+        return output_questions 
+
+    def predict(self, text):
+        predicted_questions = []
+
+        # FIB questions
+        fib_questions = self.predict_fib(text)
+        if fib_questions:
+            predicted_questions += fib_questions
+
+        # SA and MCQ questions
+        sa_mcq_questions = self.predict_sa_mcq(text, True)
+        if sa_mcq_questions:
+            predicted_questions += sa_mcq_questions
 
         # TF questions
         sentences = nltk.sent_tokenize(text)

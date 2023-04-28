@@ -22,7 +22,7 @@ const NewCourse = props => {
                         <Form.Control ref={nameInputRef} type="text" placeholder="Enter course name" />
                     </Col>
                     <Col className="d-flex justify-content-end">
-                        <Button onClick={handleSubmit} style={{ minWidth: "20%" }} variant="secondary" type="submit">Submit</Button>
+                        <Button onClick={handleSubmit} style={{ minWidth: "20%" }} variant="secondary" id="add-course-submit" type="submit">Submit</Button>
                     </Col>
                 </Row>
             </Card.Body>

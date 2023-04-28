@@ -30,8 +30,8 @@ const CourseCard = props => {
                         <a style={{ fontSize: "125%" }} href={notesLink} onClick={handleLinkClick}>{props.name}</a>
                     </Col>
                     <Col className="d-flex justify-content-end">
-                        <Button style={{ minWidth: "20%" }} className="me-3" onClick={handleUpdate} variant="primary" type="submit">Edit Course</Button>
-                        <Button style={{ minWidth: "20%" }} onClick={handleDelete} variant="danger" type="submit">Delete Course</Button>
+                        <Button style={{ minWidth: "20%" }} id="update" className="me-3" onClick={handleUpdate} variant="primary" type="submit">Edit Course</Button>
+                        <Button style={{ minWidth: "20%" }} id="delete" onClick={handleDelete} variant="danger" type="submit">Delete Course</Button>
                     </Col>
                 </Row>
             </Card.Body>

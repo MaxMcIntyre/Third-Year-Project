@@ -25,19 +25,19 @@ const EditTopicModal = props => {
                     <Row>
                         <Col className="mt-3">
                             <Form.Label>Topic Name:</Form.Label>
-                            <Form.Control ref={nameInputRef} type="text" placeholder="Enter topic name" defaultValue={props.name} />
+                            <Form.Control id="edit-topic-name" ref={nameInputRef} type="text" placeholder="Enter topic name" defaultValue={props.name} />
                         </Col>
                     </Row>
                     <Row>
                         <Col className="mt-3">
                             <Form.Label>Notes Text:</Form.Label>
-                            <Form.Control ref={notesInputRef} as="textarea" placeholder="Enter notes" defaultValue={props.notes} rows={10} />
+                            <Form.Control id="edit-topic-notes" ref={notesInputRef} as="textarea" placeholder="Enter notes" defaultValue={props.notes} rows={10} />
                         </Col>
                     </Row>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleUpdate}>
+                <Button id="edit-topic-submit" variant="secondary" onClick={handleUpdate}>
                     Submit
                 </Button>
             </Modal.Footer>

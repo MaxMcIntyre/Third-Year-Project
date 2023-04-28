@@ -4,3 +4,4 @@ requirements.txt
 sqbackend/backendapi/__pycache__
 sqbackend/migrations/__pycache__
 sqbackend/backendapi/DLModels
+node_modules

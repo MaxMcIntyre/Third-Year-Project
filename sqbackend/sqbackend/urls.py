@@ -28,9 +28,11 @@ router.register(r'questionsetattempts', views.QuestionSetAttemptView, 'questions
 router.register(r'notescontent', views.NotesContentView, 'notescontent')
 router.register(r'courses/(?P<course_pk>\d+)/topics', views.CourseTopicsView, 'coursetopics')
 router.register(r'topics/(?P<topic_pk>\d+)/questions', views.TopicQuestionsView, 'topicquestions')
+router.register(r'topics/(?P<topic_pk>\d+)/questionsetattempts', views.TopicQuestionSetAttemptsView, 'topicquestionsetattempts')
 router.register(r'topics/(?P<topic_pk>\d+)/questionsexist', QuestionsExistView, 'questionsexist')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/deleteall', views.delete_all, name='deleteall'),
 ]

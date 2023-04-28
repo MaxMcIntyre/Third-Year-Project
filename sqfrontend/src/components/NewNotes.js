@@ -41,7 +41,7 @@ const NewNotes = props => {
                 </Row>
                 <Row>
                     <Col className="d-flex mt-3 justify-content-start">
-                        <Button onClick={handleSubmit} style={{ minWidth: "15%" }} variant="secondary" type="submit">Submit</Button>
+                        <Button onClick={handleSubmit} style={{ minWidth: "15%" }} variant="secondary" id="add-topic-submit" type="submit">Submit</Button>
                     </Col>
                 </Row>
             </Card.Body>
