@@ -15,6 +15,7 @@ from .serializers import QuestionSerializer
 from .serializers import QuestionSetAttemptSerializer
 from .serializers import NotesContentSerializer
 from .prediction import Predictor
+#from .nogpuprediction import NoGPUPredictor
 from scipy.special import expit
 import random
 from django.views.decorators.csrf import csrf_exempt
@@ -138,6 +139,7 @@ class QuestionSetView(viewsets.ModelViewSet):
     queryset = QuestionSet.objects.all()
     serializer_class = QuestionSetSerializer
     predictor = Predictor()
+    #predictor = NoGPUPredictor()
 
     def create(self, request, pk=None):
         try:

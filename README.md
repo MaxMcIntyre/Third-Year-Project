@@ -1,70 +1,19 @@
-# Getting Started with Create React App
+# Installation and Running Instructions
+## Setup and Installation
+* Install Node.js, npm and pipenv.
+* From the root directory of the project, `cd` into the `sqfrontend` directory. This contains all of the code for the React frontend.
+* Run `npm install` to install the required packages.
+* Again from the root directory, `cd` into the `sqbackend` directory. This contains all of the code for the question generation and the Django backend.
+* Run `pip install -r requirements.txt` to install the required packages. 
+* Install PostgreSQL, create a database `smartquestions` and a user account with the default name (`postgres`) and password `generatequestions`
+* Create the database tables by (while in the `sqbackend` directory) running `python manage.py migrate` 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Running 
+* To start the frontend, `cd` into `sqfrontend` and run `npm start`. It should run on `localhost:3000` by default.
+* To start the backend, `cd` into `sqbackend` and run `python manage.py runserver`. It should run on `localhost:8000` by default.
+* Note that you will need a machine with a GPU that supports CUDA operations in order to run the question generation process. If you do not have such a machine and want to see how the questions are displayed on the frontend, uncomment lines 18 and 141 of `backendapi/views.py`, which are `from .nogpuprediction import NoGPUPredictor` and `predictor = NoGPUPredictor()` respectively, . Then comment lines 17 and 142, which are `from .predictor import Predictor` and `predictor = Predictor()`. `predictor.predict()` for the `NoGPUPredictor` class will always return an example of one of each question type, no matter what the notes text is.
+* Alternatively, there is a Jupyter notebook file `predict_questions.ipynb` included in the root directory that can, for example, be run on Google Colab to demonstrate the question generation process. You will need to connect it to a Google drive and upload the SQuAD/NQ model there
+* If you are able to run the application with a GPU, you can switch between the SQuAD and NQ models by commenting/uncommenting lines 20 and 21, `model_dir = "./backendapi/DLModels/final-model-squad` and `model_dir = "./backendapi/DLModels/final-model-nq`
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Misc
+* There are two files in the root directory: `preprocess_nq.py` and `train_test_t5.ipynb`. The first is the preprocessing script for the NQ dataset, and the second is the training/testing script for the T5 model. These are included for completeness purposes and are not needed to run the application.

@@ -14,11 +14,11 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 nltk.download('punkt')
 nltk.download('stopwords')
-#import tensorflow as tf
 
 
 class Predictor:
-    model_dir = "./backendapi/DLModels/checkpoint-2200"
+    model_dir = "./backendapi/DLModels/final-model-squad"
+    #model_dir = "./backendapi/DLModels/final-model-nq"
     T5Tokenizer = AutoTokenizer.from_pretrained(model_dir)
     T5Model = AutoModelForSeq2SeqLM.from_pretrained(model_dir)
     constituency_predictor = Predictor.from_path(
@@ -104,7 +104,6 @@ class Predictor:
                 keyphrases = extractor.get_n_best(n=15)
                 return keyphrases
             except Exception as e:
-                print(e)
                 return None
 
         def get_keyphrase_sentence_mapping(keyphrases, sentences):
@@ -202,7 +201,7 @@ class Predictor:
             no_repeat_ngram_size=2,
             repetition_penalty=10.0,
             temperature=0.8,
-            num_return_sequences=3
+            num_return_sequences=1
         )
 
         generated_sentences = []

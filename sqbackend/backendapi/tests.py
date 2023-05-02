@@ -16,7 +16,7 @@ from datetime import date
 from django.test import TestCase
 from .prediction import Predictor
 
-"""
+
 class CoursesTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -43,7 +43,6 @@ class CoursesTestCase(APITestCase):
         response = self.client.get('/api/courses/')
         self.assertEqual(response.status_code, 200)
 
-        #response_courses = [{'name': course['name']} for course in response.json()['courses']]
         self.assertEqual(response.json()['courses'], data)
 
     def test_retrieve(self):
@@ -164,7 +163,6 @@ class CourseTopicsTestCase(APITestCase):
         response = self.client.get(f"/api/courses/{self.course_id}/topics/")
         self.assertEqual(response.status_code, 200)
 
-        #response_courses = [{'name': course['name']} for course in response.json()['courses']]
         self.assertEqual(response.json()['topics'], data)
 
     def test_list_course_not_exist(self):
@@ -296,7 +294,7 @@ class TopicQuestionsCase(APITestCase):
         self.question_set_id = QuestionSet.objects.filter(
             topic=Topic.objects.get(pk=self.topic_id)).first().id
 
-    def test_list_question_set(self):
+    def test_list(self):
         data = [
             {'question_type': 'SA', 'question_set': QuestionSet.objects.get(
                 pk=self.question_set_id), 'question': 'Question 1', 'answer': 'Answer 1', },
@@ -464,7 +462,6 @@ class QuestionsExistTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(response.json()['exists'], False)
-"""
 
 class QuestGenTestCase(TestCase):
     def setUp(self):
